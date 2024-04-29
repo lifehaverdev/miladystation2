@@ -13,7 +13,7 @@ const Home: React.FC = () => {
 
 const animationTimeout = setTimeout(() => {
   setAnimationFinished(true);
-}, 2000);
+}, 5000);
 
   return (
     <>

@@ -22,6 +22,15 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      keyframes: {
+        wiggle: {
+          '0%, 100%': { transform: 'rotate(-3deg)' },
+          '50%': { transform: 'rotate(3deg)' },
+        }
+      },
+      animation: {
+        'spin': 'spin 3s linear infinite',
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
@@ -33,6 +42,17 @@ const config: Config = {
         lg: '0 8px 16px var(--tw-shadow-color)',
         white: '0 0px 5px rgba(255, 255, 255, 0.9)',
       },
+      colors: {
+        mony: {
+          DEFAULT: '#0AF7FC'
+        },
+        blood: {
+          DEFAULT: '#FF1E00'
+        }
+      },
+      fontFamily: {
+        'playstation': ['playstation', 'sans-serif'] // Use a sensible fallback font
+      }
     },
   },
   variants: {

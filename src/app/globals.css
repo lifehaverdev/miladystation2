@@ -3,6 +3,13 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'playstation';
+  src: url('/fonts/zrnic.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 /* Define custom global styles */
 :root {
   --foreground-rgb: 0, 0, 0;

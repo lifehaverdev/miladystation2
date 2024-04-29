@@ -36,8 +36,8 @@ export default function Header({navigation}:{navigation?:HeaderProps}) {
           ))}
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          <a href="#" className="text-sm font-semibold leading-6 text-white">
-            Log in <span aria-hidden="true">&rarr;</span>
+          <a href="/verify" className="text-sm font-semibold leading-6 text-white">
+            Verify <span aria-hidden="true">&rarr;</span>
           </a>
         </div>
       </nav>
@@ -77,10 +77,10 @@ export default function Header({navigation}:{navigation?:HeaderProps}) {
               </div>
               <div className="py-6">
                 <a
-                  href="#"
+                  href="/verify"
                   className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-white hover:bg-gray-800"
                 >
-                  Log in
+                  Verify
                 </a>
               </div>
             </div>
