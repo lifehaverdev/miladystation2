@@ -17,6 +17,7 @@ import { Keypair, SystemProgram, Transaction } from '@solana/web3.js';
 import Header from '../../components/header'
 import Socials from '../../components/socials'
 import CryptoJS from 'crypto-js';
+import {salt} from './_salt';
 
 // Default styles that can be overridden by your app
 require('@solana/wallet-adapter-react-ui/styles.css');
@@ -99,8 +100,8 @@ const SignWithWallet = () => {
         try {
             const signature = signMessage ? await signMessage(encodedMessage) : null;
             const timestamp = Math.floor(Date.now() / 60000); // Current time in minutes
-            const salt = "SomeRandomSalt"; // This should be a secure, randomly generated value or constant
-            const generatedHash = CryptoJS.SHA256(publicKey.toBase58() + timestamp + salt).toString();
+            const salted = salt; // This should be a secure, randomly generated value or constant
+            const generatedHash = CryptoJS.SHA256(publicKey.toBase58() + timestamp + salted).toString();
 
             setHash(generatedHash);
             setShowHash(true);  // Display hash and copy button
@@ -131,16 +132,6 @@ const SignWithWallet = () => {
             </div>
             <div>
             {showHash && (
-                // <div className="mt-4">
-                //     <p className="text-sm">Hash: {hash}</p>
-                //     <button
-                //         onClick={() => copyToClipboard(hash)}
-                //         className="rounded bg-blue-500 text-white px-4 py-2 mt-2 hover:bg-blue-400"
-                //     >
-                //         Copy Hash
-                //     </button>
-                //     <p className="text-xs mt-2">Use the /verify command with the stationthisbot and reply with this hash. Valid for the next 5 minutes.</p>
-                // </div>
                 <div className="bg-white shadow sm:rounded-lg">
                 <div className="px-4 py-5 sm:p-6">
                   <div className="sm:flex sm:items-start sm:justify-between">
@@ -170,57 +161,5 @@ const SignWithWallet = () => {
         </>
     );
 };
-
-
-// const SignWithWallet = () => {
-//     const { connection } = useConnection();
-//     const { publicKey, signMessage } = useWallet();
-
-//     const onClick = useCallback(async () => {
-//         if (!publicKey) throw new Error('Wallet not connected');
-
-//         const message = "I will use this wallet to create on StationThisBot, I am the owner";
-//         const encodedMessage = new TextEncoder().encode(message);
-
-//         try {
-//             const signature = signMessage ? await signMessage(encodedMessage) : null;
-
-//             // Generate the hash
-//             const timestamp = Math.floor(Date.now() / 60000); // Current time in minutes
-//             const salt = "SomeRandomSalt"; // Change this to something secret in production
-//             const hash = CryptoJS.SHA256(publicKey.toBase58() + timestamp + salt).toString();
-
-//             // Function to copy hash to clipboard
-//             const copyToClipboard = (text:string) => {
-//                 navigator.clipboard.writeText(text).then(() => {
-//                     alert('Copied to clipboard!');
-//                 }, (err) => {
-//                     console.error('Could not copy text: ', err);
-//                 });
-//             };
-
-//             // Display the hash to the user and allow them to copy it
-//             return (
-//                 <div>
-//                     <p>{`Hash: ${hash}`}</p>
-//                     <button onClick={() => copyToClipboard(hash)}>Copy Hash</button>
-//                     <p>Use the /verify command with the stationthisbot and reply with this hash. Valid for the next 5 minutes.</p>
-//                 </div>
-//             );
-//         } catch (error) {
-//             console.error('Error signing message: ', error);
-//         }
-//     }, [publicKey, signMessage]);
-
-//     return (
-//         <button
-//             type="button"
-//             className="rounded-full my-5 bg-mony px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-mony focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mony"
-//             onClick={onClick} disabled={!publicKey}
-//         >
-//            Sign In
-//       </button>
-//     );
-// }
 
 export default Verify

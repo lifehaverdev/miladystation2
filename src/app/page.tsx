@@ -5,15 +5,12 @@ import React, { useState } from 'react';
 import Landing from './landing'
 import Startup from './startup'
 
-
-
-
 const Home: React.FC = () => {
   const [animationFinished, setAnimationFinished] = useState(false);
 
 const animationTimeout = setTimeout(() => {
   setAnimationFinished(true);
-}, 5000);
+}, 4400);
 
   return (
     <>
