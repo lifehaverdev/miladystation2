@@ -1,0 +1,319 @@
+*, *:after, *:before {
+  box-sizing: border-box;
+}
+
+//$duration: 16s;
+$duration: 3s;
+
+$grey: #616A92;
+$dark: #323641;
+$light: lighten($grey, 15%);
+
+$depth: 20vw;
+
+$cube-inner-shadow: inset 0 0 1vw rgba(cyan, .07);
+
+.startup-container {
+  display: flex;
+  background: black;
+  height: 100vh;
+  width: 100vw;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Play', sans-serif;
+}
+
+.screen {
+  width: 100%;
+  padding-top: 75%;
+  position: relative;
+  max-height: 100vh;
+  transform-style: preserve-3d;
+  perspective: 400px;
+  overflow: hidden;
+}
+.inner {
+  .inner-bg {
+    background-image:   url(https://res.cloudinary.com/dhpaysqxb/image/upload/v1568580561/nebula_prju57.png);
+    background-size: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    transform: translateZ(-30vw) scale(1.4);
+    opacity: .8;
+  }
+  
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100vw;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  padding: 1%;
+  padding-top: 10%;
+  transform-style: preserve-3d;
+  //transform: rotate(-20deg);
+  animation: enter $duration cubic-bezier(1,0,.4,1)  infinite;
+}
+
+.box-container {
+  width: calc(100%/14);
+  padding: 1%;
+  position: relative;
+  z-index: 100;
+  transform-style: preserve-3d;
+}
+
+.box {
+  width: 100%;
+  padding-top: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+@for $i from 1 through 112 {
+  .box-container:nth-child(#{$i}) .box {
+    transform: translateZ(random(20)-20 + vw);
+    background-color: rgba(darken($light, random(55)), .95);
+  }
+}
+
+.box-container:nth-child(41) .box,
+.box-container:nth-child(40) .box,
+.box-container:nth-child(47) .box,
+.box-container:nth-child(48) .box,
+.box-container:nth-child(46) .box,
+.box-container:nth-child(95) .box,
+.box-container:nth-child(94) .box,
+.box-container:nth-child(102) .box,
+.box-container:nth-child(101) .box {
+  visibility: hidden;
+}
+
+.box .top,
+.box .bottom,
+.box .left,
+.box .right {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.box .top {
+  background: linear-gradient( to top, rgba(lighten($grey, 20%), .9), rgba(0,0,0,0));
+  bottom: 100%;
+  left: 0;
+  height: $depth;
+  transform-origin: 100% 100%;
+  transform: rotateX(90deg);
+  box-shadow: $cube-inner-shadow;
+  //opacity: 0;
+}
+.box .bottom {
+  background: linear-gradient(to bottom, rgba(lighten($grey, 2%), .9), rgba(0,0,0,0));
+  top: 100%;
+  left: 0;
+  height: $depth;
+  transform-origin: 0% 0%;
+  transform: rotateX(-90deg);
+   box-shadow: $cube-inner-shadow;
+  //opacity: 0;
+}
+.box .left {
+  background: linear-gradient(to left, rgba(lighten($grey, 10%), .9), rgba(0,0,0,0));
+  top: 0;
+  right: 100%;
+  width: $depth;
+  transform-origin: 100% 100%;
+  transform: rotateY(-90deg);
+  box-shadow: $cube-inner-shadow;
+  //opacity: 0;
+}
+.box .right {
+  background: linear-gradient(to right, rgba(lighten($grey, 10%), .9), rgba(0,0,0,0));
+  top: 0;
+  left: 100%;
+  width: $depth;
+  transform-origin: 0% 0%;
+  transform: rotateY(90deg);
+  box-shadow: $cube-inner-shadow;
+  //opacity: 0;
+}
+
+.screen .content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  color: white;
+  background: transparent;
+  z-index: 200;
+  animation: content $duration infinite;
+  .branding, .copyright {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .copyright {
+    font-size: 1.5rem;
+    text-shadow: black 0px 0px 3px;
+    opacity: 0;
+    animation: copyright $duration linear infinite;
+  }
+  .branding {
+    font-size: 3rem;
+    opacity: 0;
+    animation: branding $duration cubic-bezier(0,.74,.46,1) infinite;
+  }
+}
+
+@keyframes enter {
+  0% {
+    transform: rotate(-20deg);
+  }
+  60%, 100% {
+    transform: rotate(100deg) scale(4);
+  }
+}
+
+@keyframes copyright {
+  0%,5% {
+    opacity: 0
+  }
+  10%, 35% {
+    opacity: 1;
+  }
+  40%, 100% {
+    opacity: 0;
+  }
+}
+
+@keyframes content {
+  0% {
+    background-color: black;
+  }
+  5%, 43% {
+    background: transparent;
+  }
+  48%, 100% {
+    background-color: black;
+  }
+}
+
+@keyframes branding {
+  0%, 65% {
+    opacity: 0;
+    transform: translate3d(-50%, -50%, 0) scale(1.5);
+  }
+  
+  68%, 93% {
+    opacity: 1;
+    transform: translate3d(-50%, -50%, 0) scale(1);
+  }
+  
+  96%, 100% {
+    opacity: 0;
+    transform: translate3d(-50%, -50%, 0) scale(1.5);
+  }
+}
+
+.particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 200;
+}
+
+.particles span {
+  display: block;
+  height: 1px;
+  width: 1px;
+  background: white;
+  position: absolute;
+}
+
+.particles span:nth-child(1) {
+  left: 70%;
+  top: 70%;
+  box-shadow: 0 0 10px 4px rgba(red, .8);
+  animation: particle-1 $duration/2 cubic-bezier(0,.74,.46,1) infinite;
+}
+.particles span:nth-child(2) {
+  left: 70%;
+  top: 50%;
+  box-shadow: 0 0 10px 4px rgba(green, .8);
+  animation: particle-2 $duration/2 cubic-bezier(0,.74,.46,1) infinite;
+}
+
+.particles span:nth-child(3) {
+  left: 15;
+  top: 75%;
+  box-shadow: 0 0 10px 4px rgba(blue, .8);
+  animation: particle-3 $duration/2 cubic-bezier(0,.74,.46,1) infinite;
+}
+
+
+@keyframes particle-1  {
+  0% {
+    opacity: 0;
+    transform: none;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-25vw, -20vw);
+    opacity: 0;
+  }
+}
+
+@keyframes particle-2  {
+  0% {
+    opacity: 0;
+    transform: none;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-40vw, 10vw);
+    opacity: 0;
+  }
+}
+
+@keyframes particle-3  {
+  0% {
+    opacity: 0;
+    transform: none;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(45vw, -20vw);
+    opacity: 0;
+  }
+}
+
+.is-small {
+  font-size: .3em;
+}
