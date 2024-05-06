@@ -101,6 +101,7 @@ const SignWithWallet = () => {
             const signature = signMessage ? await signMessage(encodedMessage) : null;
             const timestamp = Math.floor(Date.now() / 60000); // Current time in minutes
             const salted = salt; // This should be a secure, randomly generated value or constant
+            console.log(publicKey.toBase58() + timestamp + salted);
             const generatedHash = CryptoJS.SHA256(publicKey.toBase58() + timestamp + salted).toString();
 
             setHash(generatedHash);
