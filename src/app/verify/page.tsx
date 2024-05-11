@@ -140,7 +140,7 @@ const SignWithWallet = () => {
                     <div>
                       <h3 className="text-base font-semibold leading-6 text-gray-900">Verify your account</h3>
                       <div className="mt-2 max-w-xl text-sm text-gray-500">
-                        <p>Use the /verify command with the bot and reply with the copied hash</p>
+                        <p>reply with the copied hash to the bot</p>
                         <p>
                           {hash}
                         </p>
