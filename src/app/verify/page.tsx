@@ -3,7 +3,7 @@
 import React, { FC, useMemo, useCallback, useState } from 'react';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
-import { WalletConnectWalletAdapter, PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
+import { WalletConnectWalletAdapter, PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
 import {
     WalletModalProvider,
     WalletDisconnectButton,
@@ -59,6 +59,7 @@ const Wallet: FC = () => {
             //new UnsafeBurnerWalletAdapter(),
             // new WalletConnectWalletAdapter(),
             new PhantomWalletAdapter(),
+            new SolflareWalletAdapter(),
         ],
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [network]
