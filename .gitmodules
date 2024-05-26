@@ -1,0 +1,6 @@
+[submodule "src/bot"]
+	path = src/bot
+	url = https://github.com/lifehaverdev/stationthisdeluxebot
+[submodule "src/deluxebot"]
+	path = src/deluxebot
+	url = https://github.com/lifehaverdev/stationthisdeluxebot
