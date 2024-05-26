@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "vercel-build": "echo \"$GIT_MODULES\" > .gitmodules && git submodule update --init --recursive && next build"
+    "vercel-build": "node vercel-build.js"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.19",
