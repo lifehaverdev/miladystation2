@@ -9,6 +9,7 @@ const fs = require('fs');
   try {
     console.log('Writing .gitmodules content...');
     const gitmodulesContent = process.env.GIT_MODULES
+    console.log(gitmodulesContent);
     fs.writeFileSync('.gitmodules', gitmodulesContent);
   } catch (error) {
     throw new Error(`Failed to write .gitmodules file: ${error.message}`);
