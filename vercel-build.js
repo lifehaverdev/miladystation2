@@ -1,33 +1,48 @@
 const { execSync } = require('child_process');
 const fs = require('fs');
-  // Ensure the environment variables are available
-  if (!process.env.GIT_MODULES) {
-    throw new Error('GITMODULES environment variable is not set');
+const path = require('path');
+
+try {
+  // Ensure the GITHUB_ACCESS_TOKEN environment variable is available
+  if (!process.env.GITHUB_ACCESS_TOKEN) {
+    throw new Error('GITHUB_ACCESS_TOKEN environment variable is not set');
   }
 
-  // Write the .gitmodules content to the .gitmodules file
-  try {
-    console.log('Writing .gitmodules content...');
-    const gitmodulesContent = process.env.GIT_MODULES
-    console.log(gitmodulesContent);
-    fs.writeFileSync('.gitmodules', gitmodulesContent);
-  } catch (error) {
-    throw new Error(`Failed to write .gitmodules file: ${error.message}`);
-  }
+  // Submodule information
+  const SUBMODULE_GITHUB = 'github.com/lifehaverdev/stationthisdeluxebot';
+  const SUBMODULE_PATH = 'src/deluxebot';
 
-  // Initialize and update the submodules
-  try {
-    console.log('Initializing and updating submodules...');
-    execSync('git submodule update --init --recursive', { stdio: 'inherit' });
-  } catch (error) {
-    throw new Error(`Failed to initialize and update submodules: ${error.message}`);
-  }
+  // Get submodule commit
+  let output = execSync('git submodule status --recursive').toString();
+  let noPrefix = output.split('-')[1]; // get rid of the prefix
+  let COMMIT = noPrefix.split(' ')[0]; // get rid of the suffix
+
+  // Set up an empty temporary work directory
+  const tmpDir = path.join(__dirname, 'tmp');
+  execSync(`rm -rf ${tmpDir} || true`); // remove the tmp folder if exists
+  fs.mkdirSync(tmpDir); // create the tmp folder
+
+  // Checkout the current submodule commit
+  process.chdir(tmpDir);
+  execSync('git init'); // initialise empty repo
+  execSync(`git remote add origin https://${process.env.GITHUB_ACCESS_TOKEN}@${SUBMODULE_GITHUB}`); // add origin of the submodule
+  execSync(`git fetch --depth=1 origin ${COMMIT}`); // fetch only the required version
+  execSync(`git checkout ${COMMIT}`); // checkout on the right commit
+
+  // Move the submodule from tmp to the submodule path
+  process.chdir('..'); // go one directory up
+  execSync(`rm -rf ${path.join(tmpDir, '.git')}`); // remove .git
+  execSync(`mv ${tmpDir}/* ${SUBMODULE_PATH}/`); // move the submodule to the submodule path
+
+  // Clean up
+  execSync(`rm -rf ${tmpDir}`); // remove the tmp folder
 
   // Continue with the build process
-  try {
-    console.log('Building the Next.js application...');
-    execSync('next build', { stdio: 'inherit' });
-  } catch (error) {
-    throw new Error(`Failed to build the Next.js application: ${error.message}`);
-  }
+  console.log('Building the Next.js application...');
+  execSync('next build', { stdio: 'inherit' });
+  console.log('Next.js application built successfully');
 
+} catch (error) {
+  console.error('Error during Vercel build:', error);
+  process.exit(1);
+}
