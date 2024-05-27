@@ -1,58 +1,49 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { NextResponse } from 'next/server';
 import { getBotInstance } from '@/deluxebot/app';
-import { startup } from '@/deluxebot/utils/bot/bot'
 import TelegramBot from 'node-telegram-bot-api';
 
+async function checkBot(bot: TelegramBot): Promise<boolean> {
+  const botToken = process.env.TELEGRAM_TOKEN;
+  const telegramApiUrl = `https://api.telegram.org/bot${botToken}/getMe`;
 
-let bot:TelegramBot;
+  const response = await fetch(telegramApiUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
 
-// Declare global interface for the bot instance
-declare global {
-  var bot: TelegramBot | undefined;
-}
+  const result = await response.json();
+  console.log('Telegram API getMe response:', result);
 
-if (!global.bot) {
-  bot = getBotInstance();
-  global.bot = bot;
-} else {
-  bot = global.bot;
+  return result.ok;
 }
 
 export async function POST(request: Request) {
   try {
     console.log('Webhook received');
 
-    //const clientIP = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || request.headers.get('client-ip');
-
     const body = await request.json();
     console.log('Request body:', body);
-    console.log('bot',bot);
-    console.log('startup',startup);
+
+    // Instantiate the bot
+    const bot = getBotInstance();
+
+    // Perform a quick check to ensure the bot is ready
+    const isBotReady = await checkBot(bot);
+    if (!isBotReady) {
+      throw new Error('Bot is not ready');
+    }
+
+    // Wait for 1.5 seconds to allow the bot to "warm up"
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
     // Process the update with the bot instance
     await bot.processUpdate(body);
 
-    const botToken = process.env.TELEGRAM_TOKEN;
-    const chatId = '5472638766';
-    const text = 'Test message from route.tsx';
-    const telegramApiUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
-
-    const response = await fetch(telegramApiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: text
-      })
-    });
-
-    const result = await response.json();
-    console.log('Telegram API response:', result);
-
     return NextResponse.json({ status: 'ok' });
-  } catch (error:any) {
+  } catch (error: any) {
     console.error('Error processing webhook:', error);
     return NextResponse.json({ status: 'error', message: error.message });
   }
