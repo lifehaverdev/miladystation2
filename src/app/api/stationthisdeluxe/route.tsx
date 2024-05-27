@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { getBotInstance } from '@/deluxebot/app';
 import TelegramBot from 'node-telegram-bot-api';
 
-async function checkBot(bot: TelegramBot): Promise<boolean> {
+async function checkBot(): Promise<boolean> {
   const botToken = process.env.TELEGRAM_TOKEN;
   const telegramApiUrl = `https://api.telegram.org/bot${botToken}/getMe`;
 
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     const bot = getBotInstance();
 
     // Perform a quick check to ensure the bot is ready
-    const isBotReady = await checkBot(bot);
+    const isBotReady = await checkBot();
     if (!isBotReady) {
       throw new Error('Bot is not ready');
     }
