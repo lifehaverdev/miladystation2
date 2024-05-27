@@ -18,6 +18,25 @@ export async function POST(request: Request) {
     // Process the update with the bot instance
     await bot.processUpdate(body);
 
+    const botToken = process.env.TELEGRAM_TOKEN;
+    const chatId = '5472638766';
+    const text = 'Test message from route.tsx';
+    const telegramApiUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+    const response = await fetch(telegramApiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: text
+      })
+    });
+
+    const result = await response.json();
+    console.log('Telegram API response:', result);
+
     return NextResponse.json({ status: 'ok' });
   } catch (error:any) {
     console.error('Error processing webhook:', error);
