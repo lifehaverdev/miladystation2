@@ -37,10 +37,15 @@ try {
   // Clean up
   execSync(`rm -rf ${tmpDir}`); // remove the tmp folder
 
-  // Continue with the build process
-  console.log('Building the Next.js application...');
-  execSync('next build', { stdio: 'inherit' });
-  console.log('Next.js application built successfully');
+    // Navigate to the submodule and install dependencies
+    process.chdir(SUBMODULE_PATH);
+    execSync('npm install', { stdio: 'inherit' });
+  
+    // Navigate back to the root directory and build the project
+    process.chdir('../..');
+    console.log('Building the Next.js application...');
+    execSync('next build', { stdio: 'inherit' });
+    console.log('Next.js application built successfully');
 
 } catch (error) {
   console.error('Error during Vercel build:', error);

@@ -7,7 +7,10 @@ const bot = getBotInstance();
 export async function POST(request: Request) {
   try {
     console.log('Webhook received');
-    
+
+    const clientIP = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || request.headers.get('client-ip');
+    console.log('Client IP:', clientIP);
+
     const body = await request.json();
     console.log('Request body:', body);
 
