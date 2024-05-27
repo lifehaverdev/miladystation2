@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { NextResponse } from 'next/server';
-import { getBotInstance, startup } from '@/deluxebot/utils/bot/bot.js';
+import { getBotInstance } from '@/deluxebot/app';
+import { startup } from '@/deluxebot/utils/bot/bot'
 
 const bot = getBotInstance();
 
