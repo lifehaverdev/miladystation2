@@ -13,7 +13,7 @@ export async function POST(request: Request) {
 
     const body = await request.json();
     console.log('Request body:', body);
-
+    console.log('bot',bot);
     // Process the update with the bot instance
     await bot.processUpdate(body);
 
