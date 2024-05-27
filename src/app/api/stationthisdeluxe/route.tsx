@@ -2,8 +2,22 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { NextResponse } from 'next/server';
 import { getBotInstance } from '@/deluxebot/app';
 import { startup } from '@/deluxebot/utils/bot/bot'
+import TelegramBot from 'node-telegram-bot-api';
 
-const bot = getBotInstance();
+
+let bot:TelegramBot;
+
+// Declare global interface for the bot instance
+declare global {
+  var bot: TelegramBot | undefined;
+}
+
+if (!global.bot) {
+  bot = getBotInstance();
+  global.bot = bot;
+} else {
+  bot = global.bot;
+}
 
 export async function POST(request: Request) {
   try {
