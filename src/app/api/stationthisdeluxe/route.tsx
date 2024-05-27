@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { NextResponse } from 'next/server';
-import { getBotInstance } from '@/deluxebot/utils/bot/bot.js';
+import { getBotInstance, startup } from '@/deluxebot/utils/bot/bot.js';
 
 const bot = getBotInstance();
 
@@ -14,6 +14,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     console.log('Request body:', body);
     console.log('bot',bot);
+    console.log('startup',startup);
     // Process the update with the bot instance
     await bot.processUpdate(body);
 
