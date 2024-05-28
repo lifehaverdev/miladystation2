@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     console.log('Request body:', body);
 
     // Forward the update to your bot running on a separate server
-    const botServerUrl = `http://${process.env.BOT_IP}:3000/receive-update`;
+    const botServerUrl = `http://${process.env.BOT_IP}:443/receive-update`;
     const response = await fetch(botServerUrl, {
       method: 'POST',
       headers: {
