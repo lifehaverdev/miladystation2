@@ -1,24 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { NextResponse } from 'next/server';
-import { getBotInstance } from '@/deluxebot/app';
-import TelegramBot from 'node-telegram-bot-api';
-
-async function checkBot(): Promise<boolean> {
-  const botToken = process.env.TELEGRAM_TOKEN;
-  const telegramApiUrl = `https://api.telegram.org/bot${botToken}/getMe`;
-
-  const response = await fetch(telegramApiUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
-
-  const result = await response.json();
-  console.log('Telegram API getMe response:', result);
-
-  return result.ok;
-}
 
 export async function POST(request: Request) {
   try {
@@ -27,20 +8,19 @@ export async function POST(request: Request) {
     const body = await request.json();
     console.log('Request body:', body);
 
-    // Instantiate the bot
-    const bot = getBotInstance();
+    // Forward the update to your bot running on a separate server
+    const botServerUrl = `http://${process.env.BOT_IP}:3000/receive-update`;
+    const response = await fetch(botServerUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
 
-    // Perform a quick check to ensure the bot is ready
-    const isBotReady = await checkBot();
-    if (!isBotReady) {
-      throw new Error('Bot is not ready');
+    if (!response.ok) {
+      throw new Error(`Error forwarding update to bot server: ${response.statusText}`);
     }
-
-    // Wait for 1.5 seconds to allow the bot to "warm up"
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    // Process the update with the bot instance
-    bot.processUpdate(body);
 
     return NextResponse.json({ status: 'ok' });
   } catch (error: any) {
