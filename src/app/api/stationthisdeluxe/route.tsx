@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     await new Promise(resolve => setTimeout(resolve, 1500));
 
     // Process the update with the bot instance
-    await bot.processUpdate(body);
+    bot.processUpdate(body);
 
     return NextResponse.json({ status: 'ok' });
   } catch (error: any) {
