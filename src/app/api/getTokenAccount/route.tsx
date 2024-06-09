@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
     const publicKey = req.nextUrl.searchParams.get('publicKey');
     console.log('here is the public key we have',publicKey)
     const mintAddress = "AbktLHcNzEoZc9qfVgNaQhJbqDTEmLwsARY7JcTndsPg"
-
+ 
     if (!publicKey || !mintAddress) {
         return new Response('Missing publicKey or mintAddress', {
             status: 400,

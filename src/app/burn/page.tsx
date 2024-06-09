@@ -89,13 +89,7 @@ const BurnMS2 = () => {
     const { connection } = useConnection();
 
     const { publicKey, signTransaction, connected } = useWallet();
-    //const publickey = wallet?.publicKey;
-    //const metaplex = new Metaplex(connection);
-    //const [userSPL, setUserSPL] = useState<any | null>(null);
-    //const [isFetched, setIsFetched] = useState<boolean>(false);
     const [isBurning, setIsBurning] = useState<boolean>(false);
-    //const [currentTx, setCurrentTx] = useState<number | null>(null);
-    //const [totalTx, setTotalTx] = useState<number | null>(null);
     const [success, setSuccess] = useState<boolean>(false);
     const [message, setMessage] = useState<string>("");
 
@@ -185,9 +179,6 @@ const BurnMS2 = () => {
                                 setIsBurning(false);
                                 setSuccess(true);
                               } else {
-                                // toast.success("Error confirming transaction", {
-                                //   id: confirmationToastId,
-                                // });
                                 setMessage(`Transaction failed: ${submitData}`);
                                 setIsBurning(false);
                                 setSuccess(false);
