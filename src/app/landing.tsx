@@ -89,8 +89,8 @@ const Landing = () => {
         <Header  navigation={[
           {name: 'Buy $MS2 on SOL', href:"https://jup.ag/swap/SOL-AbktLHcNzEoZc9qfVgNaQhJbqDTEmLwsARY7JcTndsPg"},
           {name: 'See $MS2 chart', href:"https://www.dextools.io/app/en/solana/pair-explorer/3gwq3YqeBqgtSu1b3pAwdEsWc4jiLT8VpMEbBNY5cqkp?t=1714358138680"},
-          {name: 'Join the Telegram', href:"https://t.me/+8vCJrnLeLm84ZDEx"},
-          {name: '$MONY on ETH', href:"#"}
+          {name: 'Join the Telegram', href:"https://t.me/STATIONTHIS"},
+          // {name: '$MONY on ETH', href:"#"}
         ]}/>
         {/* </div> */}
         {isTransitioning || selectedOption === null || selectedOption === 'miladystation2' ? (
@@ -198,7 +198,7 @@ const StationThisBotContent = () => {
                 <button
         type="button"
         className="rounded-full my-5 bg-mony px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-mony focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mony"
-        onClick={()=>{handleOpenLink('https://t.me/+8vCJrnLeLm84ZDEx')}}
+        onClick={()=>{handleOpenLink('https://t.me/STATIONTHIS')}}
       >
         Join the Alpha Group
       </button>

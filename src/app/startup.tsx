@@ -6,7 +6,7 @@ const Startup = () => {
     <div className="startup-container">
       <div className="screen">
       <div className="content">
-          <p className="copyright">Mony computer entertainment</p>
+          <p className="copyright">Mony Computer Entertainment</p>
           <p className="branding font-playstation">Miladystation 2</p>
       </div>
       <div className="inner">

@@ -50,7 +50,7 @@ const navigation = [
           </div>
           <div className="mt-8 md:order-1 md:mt-0">
             <p className="text-center text-xs leading-5 text-gray-500">
-              <s>&copy;</s> 2024 MONY GROUP All rights reserved.
+              <s>&copy;</s> 2024 MONY GROUP vpl
             </p>
           </div>
         </div>

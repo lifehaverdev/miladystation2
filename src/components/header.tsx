@@ -14,7 +14,7 @@ export default function Header({navigation}:{navigation?:HeaderProps}) {
       <nav className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
         <div className="flex lg:flex-1">
           <a href="/" className="-m-1.5 p-1.5">
-            <span className="sr-only">Your Company</span>
+            <span className="sr-only">Mony Group</span>
             <img className="h-8 w-auto" src="/monybox.svg" alt="" />
           </a>
         </div>
@@ -40,13 +40,18 @@ export default function Header({navigation}:{navigation?:HeaderProps}) {
             Verify <span aria-hidden="true">&rarr;</span>
           </a>
         </div>
+        <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+          <a href="/burn" className="text-sm font-semibold leading-6 text-white">
+            Burn <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
       </nav>
       <Dialog as="div" className="lg:hidden" open={mobileMenuOpen} onClose={setMobileMenuOpen}>
         <div className="fixed inset-0 z-10" />
         <Dialog.Panel className="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-gray-900 px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-white/10">
           <div className="flex items-center justify-between">
             <a href="/" className="-m-1.5 p-1.5">
-              <span className="sr-only">Your Company</span>
+              <span className="sr-only">Mony Group</span>
               <img
                 className="h-8 w-auto"
                 src="monybox.svg"
@@ -81,6 +86,12 @@ export default function Header({navigation}:{navigation?:HeaderProps}) {
                   className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-white hover:bg-gray-800"
                 >
                   Verify
+                </a>
+                <a
+                  href="/burn"
+                  className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-white hover:bg-gray-800"
+                >
+                  Burn
                 </a>
               </div>
             </div>
