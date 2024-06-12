@@ -27,24 +27,26 @@ require('@solana/wallet-adapter-react-ui/styles.css');
 const options = [
     { id: 1, name: 'Custom Lora Training', amount: 1000000, type: 'exact'},
     { id: 2, name: 'Groupchat Admin Mode', amount: 1000000, type: 'minimum'},
-    { id: 3, name: 'stationthisbot Clone', amount: 5000000, type: 'exact'}
+    { id: 3, name: 'stationthisbot Clone', amount: 5000000, type: 'exact'},
+    { id: 4, name: 'just because XD', amount: 0, type: 'minimum'}
 ]
 
 function classNames(...classes:string[]) {
     return classes.filter(Boolean).join(' ')
   }
 
- function Dropdown() {
+  const Dropdown = ({ selectedService, setSelectedService, amount, setAmount }: { selectedService: any, setSelectedService: (value: any) => void, amount: number, setAmount: (value: number) => void }) => {
     const [selected, setSelected] = useState(options[0])
   
     return (
-      <Listbox value={selected} onChange={setSelected}>
+      <Listbox value={selectedService} onChange={setSelectedService}>
         {({ open }) => (
           <>
-            <Listbox.Label className="block text-sm font-medium leading-6 text-gray-900">Assigned to</Listbox.Label>
+            <Listbox.Label className="block text-sm font-medium leading-6 text-gray-900"></Listbox.Label>
+            <br></br>
             <div className="relative mt-2">
               <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
-                <span className="block truncate">{selected.name}</span>
+                <span className="block truncate">{selectedService.name}</span>
                 <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                   <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
                 </span>
@@ -86,7 +88,9 @@ function classNames(...classes:string[]) {
                   ))}
                 </Listbox.Options>
               </Transition>
+              
             </div>
+            
           </>
         )}
       </Listbox>
@@ -94,7 +98,12 @@ function classNames(...classes:string[]) {
   }
 
 
- function Form() {
+ function Form({ selectedService, amount, setAmount, formData, setFormData }: { selectedService: any, amount: number, setAmount: (value: number) => void, formData: any, setFormData: (value: any) => void }) {
+    // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     console.log('it changed')
+    //     setTimeout(()=>{},5000);
+    //     setAmount(parseInt(e.target.value, 10));
+    // };
     return (
       <form>
         <div className="">
@@ -139,6 +148,27 @@ function classNames(...classes:string[]) {
                   />
                 </div>
               </div>
+              {selectedService.type === 'exact' && (
+                    <div className="mt-4 text-lg font-bold text-lg text-white cursor-pointer transition-colors duration-300">
+                        $MS2 {selectedService.amount}
+                    </div>
+                )}
+
+                {selectedService.type === 'minimum' && (
+                    <div className="mt-4 ">
+                        <label className="block text-lg text-white cursor-pointer transition-colors duration-300">
+                            Amount to Burn (Minimum $MS2 {selectedService.amount})
+                        </label>
+                        <input
+                            id='burn-amount'
+                            type="text"
+                            placeholder={JSON.stringify(amount)}
+                            // onChange={handleChange}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            // min={selectedService.amount}
+                        />
+                    </div>
+                )}
             </div>
           </div>
         </div>
@@ -147,6 +177,13 @@ function classNames(...classes:string[]) {
   }
 
 const BurnSPLView: React.FC = ({}) => {
+    const [selectedService, setSelectedService] = useState(options[0]);
+    const [formData, setFormData] = useState({
+        projectName: '',
+        twitterHandle: '',
+        telegramHandle: ''
+    });
+    const [amount, setAmount] = useState(selectedService.amount);
 
     const Wallet: FC = () => {
         // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
@@ -176,9 +213,9 @@ const BurnSPLView: React.FC = ({}) => {
                             <br></br>
                             <br></br>
                             <WalletMultiButton />
-                            <Dropdown />
-                            <Form />
-                            <BurnMS2/>
+                            <Dropdown selectedService={selectedService} setSelectedService={setSelectedService} amount={amount} setAmount={setAmount}/>
+                            <Form selectedService={selectedService} amount={amount} setAmount={setAmount} formData={formData} setFormData={setFormData} />
+                            <BurnMS2 selectedService={selectedService} formData={formData} />
                         </div>
                     </div>
                     </WalletModalProvider>
@@ -217,7 +254,7 @@ const fetchTokenAccount = async (publicKey: string) => {
     }
 };
 
-const BurnMS2 = () => {
+const BurnMS2 = ({ selectedService, formData }: { selectedService: any, formData: any }) => {
     const { connection } = useConnection();
 
     const { publicKey, signTransaction, connected } = useWallet();
@@ -247,7 +284,14 @@ const BurnMS2 = () => {
                             setMessage("No tokens found to burn.");
                             return;
                             }
-                            const amount = 1000000;
+                            let amount;
+                            if(selectedService.type == 'exact'){
+                                amount = selectedService.amount * 1000000;
+                            } else if (selectedService.type == 'minimum' && document.getElementById('burn-amount')){
+                                const burnInput = document.getElementById('burn-amount') as HTMLInputElement;
+                                amount = parseInt(burnInput?.value) * 1000000;
+                            }
+                            
                             
                             let response = await fetch("/api/createBurnTx",
                                 {
@@ -310,6 +354,24 @@ const BurnMS2 = () => {
                                 setMessage(`Transaction successful: ${submitData}`);
                                 setIsBurning(false);
                                 setSuccess(true);
+                                
+                                const project = document.getElementById('project') as HTMLInputElement;
+                                const twitter = document.getElementById('twitter') as HTMLInputElement;
+                                const telegram = document.getElementById('telegram') as HTMLInputElement;
+                                // Save the burn data to the database
+                                await fetch('/api/saveBurn', {
+                                    method: 'POST',
+                                    body: JSON.stringify({
+                                        wallet: publicKey,//.toBase58(),
+                                        amount: amount,
+                                        service: selectedService.name,
+                                        projectName: project.value,
+                                        twitterHandle: twitter.value,
+                                        telegramHandle: telegram.value,
+                                        hash: submitData.txSignature,
+                                    }),
+                                    headers: { 'Content-Type': 'application/json' },
+                                });
                               } else {
                                 setMessage(`Transaction failed: ${submitData}`);
                                 setIsBurning(false);
@@ -326,7 +388,7 @@ const BurnMS2 = () => {
                       setMessage(`Error: ${error.message}`);
                       console.log(error);
                     }
-                },[publicKey, signTransaction])}
+                },[publicKey, signTransaction, selectedService, formData])}
                 disabled={!publicKey}
             >
                 {isBurning ? 'Burning...' : `Burn MS2`}
