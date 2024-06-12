@@ -1,12 +1,11 @@
 import { Connection, Transaction } from "@solana/web3.js";
-import { NextApiResponse } from "next";
 import { NextRequest } from "next/server";
 
 export type TxSendData = {
   txSignature: string;
 };
 
-export async function POST(req: NextRequest, res: NextApiResponse) {
+export async function POST(req: NextRequest) {
     const { signedTx } = await req.json();
 
     const CUSTOM_RPC_URL = process.env.HELIUS || 'default_rpc_url';

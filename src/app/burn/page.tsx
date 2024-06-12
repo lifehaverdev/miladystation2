@@ -119,6 +119,7 @@ function classNames(...classes:string[]) {
                     name="project"
                     id="project"
                     className="block w-full rounded-md border-0 py-1.5 text-blue-900 shadow-sm ring-1 ring-inset ring-blue-300 placeholder:text-blue-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                    value={formData.projectName}
                   />
                 </div>
               </div>
@@ -132,6 +133,7 @@ function classNames(...classes:string[]) {
                     name="twitter"
                     id="twitter"
                     className="block w-full rounded-md border-0 py-1.5 text-blue-900 shadow-sm ring-1 ring-inset ring-blue-300 placeholder:text-blue-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                    value={formData.twitterHandle}
                   />
                 </div>
               </div>
@@ -145,6 +147,7 @@ function classNames(...classes:string[]) {
                     name="telegram"
                     type="text"
                     className="block w-full rounded-md border-0 py-1.5 text-blue-900 shadow-sm ring-1 ring-inset ring-blue-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-md sm:text-sm sm:leading-6"
+                    value={formData.telegramHandle}
                   />
                 </div>
               </div>
@@ -164,7 +167,7 @@ function classNames(...classes:string[]) {
                             type="text"
                             placeholder={JSON.stringify(amount)}
                             // onChange={handleChange}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm sm:text-black"
                             // min={selectedService.amount}
                         />
                     </div>
@@ -184,6 +187,7 @@ const BurnSPLView: React.FC = ({}) => {
         telegramHandle: ''
     });
     const [amount, setAmount] = useState(selectedService.amount);
+    const [progress, setProgress] = useState<number>(0);
 
     const Wallet: FC = () => {
         // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
@@ -212,10 +216,11 @@ const BurnSPLView: React.FC = ({}) => {
                             <br></br>
                             <br></br>
                             <br></br>
+                            <Status progress={progress}/>
                             <WalletMultiButton />
                             <Dropdown selectedService={selectedService} setSelectedService={setSelectedService} amount={amount} setAmount={setAmount}/>
                             <Form selectedService={selectedService} amount={amount} setAmount={setAmount} formData={formData} setFormData={setFormData} />
-                            <BurnMS2 selectedService={selectedService} formData={formData} />
+                            <BurnMS2 selectedService={selectedService} formData={formData} setFormData={setFormData} setProgress={setProgress}/>
                         </div>
                     </div>
                     </WalletModalProvider>
@@ -254,13 +259,13 @@ const fetchTokenAccount = async (publicKey: string) => {
     }
 };
 
-const BurnMS2 = ({ selectedService, formData }: { selectedService: any, formData: any }) => {
-    const { connection } = useConnection();
+const BurnMS2 = ({ selectedService, formData, setProgress, setFormData }: { selectedService: any, formData: any, setProgress: any, setFormData:any }) => {
 
-    const { publicKey, signTransaction, connected } = useWallet();
+    const { publicKey, signTransaction } = useWallet();
     const [isBurning, setIsBurning] = useState<boolean>(false);
     const [success, setSuccess] = useState<boolean>(false);
     const [message, setMessage] = useState<string>("");
+    
 
     return (
         <>
@@ -331,6 +336,15 @@ const BurnMS2 = ({ selectedService, formData }: { selectedService: any, formData
                                 body: JSON.stringify({ signedTx: signedTxBase64 }),
                                 headers: { "Content-type": "application/json; charset=UTF-8" },
                             });
+                            const project = document.getElementById('project') as HTMLInputElement;
+                            const twitter = document.getElementById('twitter') as HTMLInputElement;
+                            const telegram = document.getElementById('telegram') as HTMLInputElement;
+                            setFormData({
+                                projectName: project.value,
+                                twitterHandle: twitter.value,
+                                telegramHandle: telegram.value,
+                            })
+                            setProgress(30);
                             console.log('submitresponse',submitResponse)
                             var submitData = await submitResponse.json();
                             if (!submitResponse.ok) {
@@ -351,13 +365,12 @@ const BurnMS2 = ({ selectedService, formData }: { selectedService: any, formData
                             const confirmationData = await confirmationResponse.json();
                             console.log(confirmationData)
                               if (confirmationData.confirmed) {
+                                setProgress(60);
                                 setMessage(`Transaction successful: ${submitData}`);
                                 setIsBurning(false);
                                 setSuccess(true);
                                 
-                                const project = document.getElementById('project') as HTMLInputElement;
-                                const twitter = document.getElementById('twitter') as HTMLInputElement;
-                                const telegram = document.getElementById('telegram') as HTMLInputElement;
+                                
                                 // Save the burn data to the database
                                 await fetch('/api/saveBurn', {
                                     method: 'POST',
@@ -365,17 +378,20 @@ const BurnMS2 = ({ selectedService, formData }: { selectedService: any, formData
                                         wallet: publicKey,//.toBase58(),
                                         amount: amount,
                                         service: selectedService.name,
-                                        projectName: project.value,
-                                        twitterHandle: twitter.value,
-                                        telegramHandle: telegram.value,
+                                        projectName: formData.projectName,
+                                        twitterHandle: formData.twitterHandle,
+                                        telegramHandle: formData.telegramHandle,
                                         hash: submitData.txSignature,
                                     }),
                                     headers: { 'Content-Type': 'application/json' },
                                 });
+                                setProgress(100);
                               } else {
                                 setMessage(`Transaction failed: ${submitData}`);
+
                                 setIsBurning(false);
                                 setSuccess(false);
+                                setProgress(0);
                               }
                             
                         } else {
@@ -386,9 +402,10 @@ const BurnMS2 = ({ selectedService, formData }: { selectedService: any, formData
                     } catch (error:any) {
                       setIsBurning(false);
                       setMessage(`Error: ${error.message}`);
+                      setProgress(0);
                       console.log(error);
                     }
-                },[publicKey, signTransaction, selectedService, formData])}
+                },[publicKey, signTransaction, selectedService, setProgress, setFormData, formData])}
                 disabled={!publicKey}
             >
                 {isBurning ? 'Burning...' : `Burn MS2`}
@@ -400,5 +417,86 @@ const BurnMS2 = ({ selectedService, formData }: { selectedService: any, formData
         </>
     );
 };
+
+import { Popover } from '@headlessui/react'
+import { ChevronDownIcon } from '@heroicons/react/20/solid'
+
+function Status({ progress }: { progress: number }) {
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+      if (progress > 0) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    }, [progress]);
+
+    const handleClose = () => {
+        setIsVisible(false);
+    };
+  
+    return (
+      <div className="relative">
+        <div className="inline-flex items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900">
+          <span>Solutions</span>
+          <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+        </div>
+  
+        {isVisible && (
+          <Transition
+            show={isVisible}
+            enter="transition ease-out duration-200"
+            enterFrom="opacity-0 translate-y-1"
+            enterTo="opacity-100 translate-y-0"
+            leave="transition ease-in duration-150"
+            leaveFrom="opacity-100 translate-y-0"
+            leaveTo="opacity-0 translate-y-1"
+          >
+            <div className="absolute left-1/2 z-10 mt-5 flex w-screen max-w-max -translate-x-1/2 px-4">
+              <div className="w-screen max-w-md flex-auto overflow-hidden rounded-3xl bg-white text-sm leading-6 shadow-lg ring-1 ring-gray-900/5">
+                <div className="p-4">
+                  <h1>Do not leave the page</h1>
+                </div>
+                <Progress progress={progress} />
+                <div className="flex-auto m-5">
+                {progress === 100 && (
+                                    <button
+                                        onClick={handleClose}
+                                        className="mt-4 rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                    >
+                                        Close
+                                    </button>
+                                )}
+                </div>
+              </div>
+            </div>
+          </Transition>
+        )}
+      </div>
+    );
+  }
+
+
+function Progress({ progress }: { progress: number }) {
+    return (
+        <div className="bg-white px-4 py-12 sm:px-6 lg:px-8">
+        <div className="">
+          <h4 className="sr-only">Status</h4>
+          <p className="text-sm font-medium text-gray-900">Processing Transaction</p>
+          <div className="mt-6" aria-hidden="true">
+            <div className="overflow-hidden rounded-full bg-gray-200">
+              <div className="h-2 rounded-full bg-indigo-600" style={{ width: `${progress}%` }} />
+            </div>
+            <div className="mt-6 flex justify-between text-sm font-medium text-gray-600">
+              <div className={`flex-1 text-center ${progress >= 30 ? 'text-indigo-600' : ''}`}>Confirming Transaction</div>
+              <div className={`flex-1 text-center ${progress >= 60 ? 'text-indigo-600' : ''}`}>Saving Data</div>
+              <div className={`flex-1 text-right ${progress >= 90 ? 'text-indigo-600' : ''}`}>Complete</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
 export default BurnSPLView
