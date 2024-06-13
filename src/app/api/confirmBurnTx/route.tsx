@@ -7,9 +7,12 @@ export type TxConfirmData = {
   message: string;
 };
 
-export const config = {
-    maxDuration: 60,
-  };
+// export const config = {
+//     maxDuration: 60,
+//   };
+
+export const maxDuration = 60; // This function can run for a maximum of 5 seconds
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest, res: NextApiResponse) {
     const { txSignature } = await req.json();
