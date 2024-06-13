@@ -7,6 +7,10 @@ export type TxConfirmData = {
   message: string;
 };
 
+export const config = {
+    maxDuration: 60,
+  };
+
 export async function POST(req: NextRequest, res: NextApiResponse) {
     const { txSignature } = await req.json();
 
