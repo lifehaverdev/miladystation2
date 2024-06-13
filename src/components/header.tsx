@@ -36,11 +36,6 @@ export default function Header({navigation}:{navigation?:HeaderProps}) {
           ))}
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          <a href="/verify" className="text-sm font-semibold leading-6 text-white">
-            Verify <span aria-hidden="true">&rarr;</span>
-          </a>
-        </div>
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end">
           <a href="/burn" className="text-sm font-semibold leading-6 text-white">
             Burn <span aria-hidden="true">&rarr;</span>
           </a>

@@ -1,26 +1,26 @@
 'use client'
 
 import { Listbox, Transition } from '@headlessui/react'
-import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
-import { PhotoIcon, UserCircleIcon } from '@heroicons/react/24/solid'
+import { CheckIcon, ChevronUpDownIcon, XCircleIcon, ChevronDownIcon } from '@heroicons/react/20/solid'
 
-import Link from "next/link";
-import { FC, Fragment, useEffect, useMemo, useState, useCallback } from "react";
-import { useWallet, useConnection } from "@solana/wallet-adapter-react";
+import { FC, useEffect, useMemo, useState, useCallback } from "react";
+import { useWallet } from "@solana/wallet-adapter-react";
 //import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { clusterApiUrl, PublicKey, Transaction } from "@solana/web3.js";
 //import { SolanaLogo, Loader } from "components";
 
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
-import { WalletConnectWalletAdapter, PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
+import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
 import {
     WalletModalProvider,
     WalletDisconnectButton,
     WalletMultiButton
 } from '@solana/wallet-adapter-react-ui';
-import Header from '../../components/header'
-import Socials from '../../components/socials'
+import Header from '@/components/header'
+import Socials from '@/components/socials'
+import MobileWarning from '@/components/mobileWarn'
+import TxAlert from '@/components/txAlert'
 
 require('@solana/wallet-adapter-react-ui/styles.css');
 
@@ -152,13 +152,13 @@ function classNames(...classes:string[]) {
                 </div>
               </div>
               {selectedService.type === 'exact' && (
-                    <div className="mt-4 text-lg font-bold text-lg text-white cursor-pointer transition-colors duration-300">
+                    <div className="mt-4 flex mx-auto justify-center text-lg font-bold text-lg text-white cursor-pointer transition-colors duration-300">
                         $MS2 {selectedService.amount}
                     </div>
                 )}
 
                 {selectedService.type === 'minimum' && (
-                    <div className="mt-4 ">
+                    <div className="mt-4 flex mx-auto justify-center">
                         <label className="block text-lg text-white cursor-pointer transition-colors duration-300">
                             Amount to Burn (Minimum $MS2 {selectedService.amount})
                         </label>
@@ -188,6 +188,12 @@ const BurnSPLView: React.FC = ({}) => {
     });
     const [amount, setAmount] = useState(selectedService.amount);
     const [progress, setProgress] = useState<number>(0);
+    const [message, setMessage] = useState<string>("");
+    const [success, setSuccess] = useState<boolean>(false);
+
+    const closeTxError = () => {
+        setMessage('');
+    };
 
     const Wallet: FC = () => {
         // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
@@ -216,11 +222,14 @@ const BurnSPLView: React.FC = ({}) => {
                             <br></br>
                             <br></br>
                             <br></br>
+                            
+                            <MobileWarning />
                             <Status progress={progress}/>
                             <WalletMultiButton />
+                            <TxAlert message={message} onClose={closeTxError} success={success}/>
                             <Dropdown selectedService={selectedService} setSelectedService={setSelectedService} amount={amount} setAmount={setAmount}/>
                             <Form selectedService={selectedService} amount={amount} setAmount={setAmount} formData={formData} setFormData={setFormData} />
-                            <BurnMS2 selectedService={selectedService} formData={formData} setFormData={setFormData} setProgress={setProgress}/>
+                            <BurnMS2 setSuccess={setSuccess} setMessage={setMessage} selectedService={selectedService} formData={formData} setFormData={setFormData} setProgress={setProgress}/>
                         </div>
                     </div>
                     </WalletModalProvider>
@@ -259,12 +268,12 @@ const fetchTokenAccount = async (publicKey: string) => {
     }
 };
 
-const BurnMS2 = ({ selectedService, formData, setProgress, setFormData }: { selectedService: any, formData: any, setProgress: any, setFormData:any }) => {
+const BurnMS2 = ({ setSuccess, setMessage, selectedService, formData, setProgress, setFormData }: { setSuccess: (value:boolean)=> void, setMessage: (value:string)=> void, selectedService: any, formData: any, setProgress: any, setFormData:any }) => {
 
     const { publicKey, signTransaction } = useWallet();
     const [isBurning, setIsBurning] = useState<boolean>(false);
-    const [success, setSuccess] = useState<boolean>(false);
-    const [message, setMessage] = useState<string>("");
+    
+    
     
 
     return (
@@ -366,7 +375,7 @@ const BurnMS2 = ({ selectedService, formData, setProgress, setFormData }: { sele
                             console.log(confirmationData)
                               if (confirmationData.confirmed) {
                                 setProgress(60);
-                                setMessage(`Transaction successful: ${submitData}`);
+                                setMessage(`Transaction successful: ${JSON.stringify(submitData)}`);
                                 setIsBurning(false);
                                 setSuccess(true);
                                 
@@ -405,21 +414,18 @@ const BurnMS2 = ({ selectedService, formData, setProgress, setFormData }: { sele
                       setProgress(0);
                       console.log(error);
                     }
-                },[publicKey, signTransaction, selectedService, setProgress, setFormData, formData])}
+                },[publicKey, signTransaction, selectedService, setProgress, setFormData, formData, setMessage, setSuccess])}
                 disabled={!publicKey}
             >
                 {isBurning ? 'Burning...' : `Burn MS2`}
             </button>
         </div>
-        <div>
+        {/* <div>
             {message && <p>{message}</p>}
-        </div>
+        </div> */}
         </>
     );
 };
-
-import { Popover } from '@headlessui/react'
-import { ChevronDownIcon } from '@heroicons/react/20/solid'
 
 function Status({ progress }: { progress: number }) {
     const [isVisible, setIsVisible] = useState(false);
