@@ -361,7 +361,9 @@ const BurnMS2 = ({ setSuccess, setMessage, selectedService, formData, setProgres
                             }
                             console.log('submitData',submitData)
                             console.log('submitted sig',submitData.txSignature)
-                            setTimeout(()=>{},20000) //to give confirmation extra time to kick in
+                            setTimeout(()=>{
+                                console.log('we just waited')
+                            },20000) //to give confirmation extra time to kick in
                             const confirmationResponse = await fetch("/api/confirmBurnTx",
                                 {
                                   method: "POST",
