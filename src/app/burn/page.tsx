@@ -98,7 +98,7 @@ function classNames(...classes:string[]) {
   }
 
 
- function Form({ selectedService, amount, setAmount, formData, setFormData }: { selectedService: any, amount: number, setAmount: (value: number) => void, formData: any, setFormData: (value: any) => void }) {
+ function Form({ selectedService, amount, setAmount }: { selectedService: any, amount: number, setAmount: (value: number) => void, formData: any, setFormData: (value: any) => void }) {
     // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     //     console.log('it changed')
     //     setTimeout(()=>{},5000);
@@ -119,7 +119,7 @@ function classNames(...classes:string[]) {
                     name="project"
                     id="project"
                     className="block w-full rounded-md border-0 py-1.5 text-blue-900 shadow-sm ring-1 ring-inset ring-blue-300 placeholder:text-blue-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                    value={formData.projectName}
+                    
                   />
                 </div>
               </div>
@@ -133,7 +133,7 @@ function classNames(...classes:string[]) {
                     name="twitter"
                     id="twitter"
                     className="block w-full rounded-md border-0 py-1.5 text-blue-900 shadow-sm ring-1 ring-inset ring-blue-300 placeholder:text-blue-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                    value={formData.twitterHandle}
+                    
                   />
                 </div>
               </div>
@@ -147,7 +147,7 @@ function classNames(...classes:string[]) {
                     name="telegram"
                     type="text"
                     className="block w-full rounded-md border-0 py-1.5 text-blue-900 shadow-sm ring-1 ring-inset ring-blue-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-md sm:text-sm sm:leading-6"
-                    value={formData.telegramHandle}
+                    
                   />
                 </div>
               </div>
