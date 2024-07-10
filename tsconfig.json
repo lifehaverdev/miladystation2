@@ -34,7 +34,7 @@
     ".next/types/**/*.ts",
     "./packages/*/*/src",
     "./packages/*/*/package.json"
-, "src/lib/mongodb.js"  ],
+, "src/lib/mongodb.js", "src/db/db.js", "src/server/generate.js"  ],
   "exclude": [
     "node_modules"
   ]
