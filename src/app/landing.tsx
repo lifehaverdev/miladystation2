@@ -118,7 +118,7 @@ function LandingContent({ selectedOption, handleOptionClick }: { selectedOption:
           <p onClick={(e: React.MouseEvent<HTMLParagraphElement>) => handleOptionClick("stationthis")} className="text-shadow-white hover:text-blue-600 hover:text-shadow-sm">stationthis $MS2 </p>
         </div>
         <div className="absolute left-1/2 top-1/5 transform -translate-x-1/2 py-1 px-6 text-lg text-white cursor-pointer text-shadow-white transition-colors duration-300 hover:text-blue-600 hover:text-shadow-sm">
-          <p onClick={(e: React.MouseEvent<HTMLParagraphElement>) => handleOptionClick("miladystation2")} className="text-shadow-white hover:text-blue-600 hover:text-shadow-sm">miladystation2 $MONY</p>
+          <p onClick={(e: React.MouseEvent<HTMLParagraphElement>) => handleOptionClick("miladystation2")} className="text-shadow-white hover:text-blue-600 hover:text-shadow-sm">stationthiswebui</p>
         </div>
     </div>
   );

@@ -19,6 +19,7 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/Lib/**/*.{js,ts,jsx,tsx,mdx}",
+    "./node_modules/flowbite/**/*.js"
   ],
   theme: {
     extend: {
@@ -61,7 +62,8 @@ const config: Config = {
     }
   },
   plugins: [
-    myPlugin
+    myPlugin,
+    require('flowbite/plugin')
   ],
 };
 export default config;

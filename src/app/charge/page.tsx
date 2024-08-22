@@ -6,7 +6,7 @@ import { CheckIcon, ChevronUpDownIcon, XCircleIcon, ChevronDownIcon } from '@her
 import { FC, useEffect, useMemo, useState, useCallback } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 //import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { clusterApiUrl, PublicKey, Transaction } from "@solana/web3.js";
+import { clusterApiUrl, LAMPORTS_PER_SOL, PublicKey, Transaction } from "@solana/web3.js";
 //import { SolanaLogo, Loader } from "components";
 
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
@@ -24,10 +24,8 @@ import TxAlert from '@/components/txAlert'
 require('@solana/wallet-adapter-react-ui/styles.css');
 
 const options = [
-    { id: 1, name: 'Custom Lora Training', amount: 1000000, type: 'exact'},
-    { id: 2, name: 'Groupchat Admin Mode', amount: 1000000, type: 'minimum'},
-    { id: 3, name: 'stationthisbot Clone', amount: 5000000, type: 'exact'},
-    { id: 4, name: 'just because XD', amount: 0, type: 'minimum'}
+    { id: 1, name: 'Charge your Group', amount: 100000, type: 'minimum'},
+    { id: 2, name: 'Tip the Dev', amount: 100000, type: 'minimum'},
 ]
 
 function classNames(...classes:string[]) {
@@ -159,10 +157,10 @@ function classNames(...classes:string[]) {
                 {selectedService.type === 'minimum' && (
                     <div className="mt-4 flex mx-auto justify-center">
                         <label className="block text-lg text-white cursor-pointer transition-colors duration-300">
-                            Amount to Burn (Minimum $MS2 {selectedService.amount})
+                            Amount Sol
                         </label>
                         <input
-                            id='burn-amount'
+                            id='solInput'
                             type="text"
                             placeholder={JSON.stringify(amount)}
                             // onChange={handleChange}
@@ -178,7 +176,7 @@ function classNames(...classes:string[]) {
     )
   }
 
-const BurnSPLView: React.FC = ({}) => {
+const PaySolView: React.FC = ({}) => {
     const [selectedService, setSelectedService] = useState(options[0]);
     const [formData, setFormData] = useState({
         projectName: '',
@@ -228,7 +226,7 @@ const BurnSPLView: React.FC = ({}) => {
                             <TxAlert message={message} onClose={closeTxError} success={success}/>
                             <Dropdown selectedService={selectedService} setSelectedService={setSelectedService} amount={amount} setAmount={setAmount}/>
                             <Form selectedService={selectedService} amount={amount} setAmount={setAmount} formData={formData} setFormData={setFormData} />
-                            <BurnMS2 setSuccess={setSuccess} setMessage={setMessage} selectedService={selectedService} formData={formData} setFormData={setFormData} setProgress={setProgress}/>
+                            <PayDev setSuccess={setSuccess} setMessage={setMessage} selectedService={selectedService} formData={formData} setFormData={setFormData} setProgress={setProgress}/>
                         </div>
                     </div>
                     </WalletModalProvider>
@@ -267,13 +265,10 @@ const fetchTokenAccount = async (publicKey: string) => {
     }
 };
 
-const BurnMS2 = ({ setSuccess, setMessage, selectedService, formData, setProgress, setFormData }: { setSuccess: (value:boolean)=> void, setMessage: (value:string)=> void, selectedService: any, formData: any, setProgress: any, setFormData:any }) => {
+const PayDev = ({ setSuccess, setMessage, selectedService, formData, setProgress, setFormData }: { setSuccess: (value:boolean)=> void, setMessage: (value:string)=> void, selectedService: any, formData: any, setProgress: any, setFormData:any }) => {
 
     const { publicKey, signTransaction } = useWallet();
-    const [isBurning, setIsBurning] = useState<boolean>(false);
-    
-    
-    
+    const [isPaying, setIsPaying] = useState<boolean>(false);
 
     return (
         <>
@@ -285,31 +280,38 @@ const BurnMS2 = ({ setSuccess, setMessage, selectedService, formData, setProgres
                         const project = document.getElementById('project') as HTMLInputElement;
                         const twitter = document.getElementById('twitter') as HTMLInputElement;
                         const telegram = document.getElementById('telegram') as HTMLInputElement;
-                        console.log('testing',project.value,twitter.value,telegram.value)
                         if (publicKey) {
-                            setIsBurning(true);
+                            setIsPaying(true);
                             setSuccess(false);
                             setMessage("");
-                            
+                            /*
                             // Fetch the user's token account address for the known token
                             const tokenAccountInfo = await fetchTokenAccount(`${publicKey}`);
-                            
+                            console.log('here is the token account',tokenAccountInfo)
                             const tokenAccountAddress = new PublicKey(tokenAccountInfo.pubkey);
-                
+                            
+
                             if (!tokenAccountAddress) {
-                            setIsBurning(false);
+                            setIsPaying(false);
                             setMessage("No tokens found to burn.");
                             return;
                             }
+                            */
+
+                            /*
                             let amount;
                             if(selectedService.type == 'exact'){
                                 amount = selectedService.amount * 1000000;
-                            } else if (selectedService.type == 'minimum' && document.getElementById('burn-amount')){
-                                const burnInput = document.getElementById('burn-amount') as HTMLInputElement;
-                                amount = parseInt(burnInput?.value) * 1000000;
+                            } else if (selectedService.type == 'minimum' && document.getElementById('sol-amount')){
+                                const solInput = document.getElementById('sol-amount') as HTMLInputElement;
+                                amount = parseInt(solInput?.value) * 1000000;
                             }
+                            */
+
+                            const solInput = document.getElementById('solInput') as HTMLInputElement;
+                            const amount = parseFloat(solInput?.value);
                             
-                            
+                            /*
                             let response = await fetch("/api/createBurnTx",
                                 {
                                   method: "POST",
@@ -322,6 +324,21 @@ const BurnMS2 = ({ setSuccess, setMessage, selectedService, formData, setProgres
                                   headers: { "Content-type": "application/json; charset=UTF-8" },
                                 }
                               );
+                              */
+
+                              console.log('solInput before create charge tx',amount);
+                            let response = await fetch("/api/createChargeTx",
+                                {
+                                    method: "POST",
+                                    body: JSON.stringify({
+                                      publicKey: publicKey,//.toBase58(),
+                                      amount: amount,
+                                      //type: "token",
+                                      //tokenAddress: tokenAccountAddress
+                                    }),
+                                    headers: { "Content-type": "application/json; charset=UTF-8" },
+                                  }
+                                );
                             console.log(response);
                     
                               
@@ -341,20 +358,19 @@ const BurnMS2 = ({ setSuccess, setMessage, selectedService, formData, setProgres
                             if(signedTx){
                                 signedTxBase64 = signedTx.serialize().toString("base64");
                             }
-                            console.log('testing',project.value,twitter.value,telegram.value)
+
                             // Send signed transaction
                             const submitResponse = await fetch("/api/submitTx", {
                                 method: "POST",
                                 body: JSON.stringify({ signedTx: signedTxBase64 }),
                                 headers: { "Content-type": "application/json; charset=UTF-8" },
                             });
-                            console.log('testing',project.value,twitter.value,telegram.value)
-                            await setFormData({
-                                projectName: project.value,
-                                twitterHandle: twitter.value,
-                                telegramHandle: telegram.value,
-                            })
-                            console.log('testing form',formData)
+
+                            // setFormData({
+                            //     projectName: project.value,
+                            //     twitterHandle: twitter.value,
+                            //     telegramHandle: telegram.value,
+                            // })
                             setProgress(30);
                             console.log('submitresponse',submitResponse)
                             var submitData = await submitResponse.json();
@@ -381,17 +397,17 @@ const BurnMS2 = ({ setSuccess, setMessage, selectedService, formData, setProgres
                               if (confirmationData.confirmed) {
                                 setProgress(60);
                                 setMessage(`Transaction successful: ${JSON.stringify(submitData)}`);
-                                setIsBurning(false);
+                                setIsPaying(false);
                                 setSuccess(true);
                                 
-                                console.log('testing form',formData)
+                                
                                 // Save the burn data to the database
-                                await fetch('/api/saveBurn', {
+                                await fetch('/api/saveCharge', {
                                     method: 'POST',
                                     body: JSON.stringify({
                                         wallet: publicKey,//.toBase58(),
                                         amount: amount,
-                                        service: selectedService.name,
+                                        //service: selectedService.name,
                                         projectName: project.value,
                                         twitterHandle: twitter.value,
                                         telegramHandle: telegram.value,
@@ -403,7 +419,7 @@ const BurnMS2 = ({ setSuccess, setMessage, selectedService, formData, setProgres
                               } else {
                                 setMessage(`Transaction failed: ${submitData}`);
 
-                                setIsBurning(false);
+                                setIsPaying(false);
                                 setSuccess(false);
                                 setProgress(0);
                               }
@@ -414,15 +430,15 @@ const BurnMS2 = ({ setSuccess, setMessage, selectedService, formData, setProgres
                         }
                 
                     } catch (error:any) {
-                      setIsBurning(false);
+                      setIsPaying(false);
                       setMessage(`Error: ${error.message}`);
                       setProgress(0);
                       console.log(error);
                     }
-                },[publicKey, signTransaction, selectedService, setProgress, setFormData, formData, setMessage, setSuccess])}
+                },[publicKey, signTransaction, setProgress, setMessage, setSuccess])}
                 disabled={!publicKey}
             >
-                {isBurning ? 'Burning...' : `Burn MS2`}
+                {isPaying ? 'Charging...' : `Charge the Chat`}
             </button>
         </div>
         {/* <div>
@@ -431,6 +447,9 @@ const BurnMS2 = ({ setSuccess, setMessage, selectedService, formData, setProgres
         </>
     );
 };
+
+// const PayDev = ({ setSuccess, setMessage, selectedService, formData, setProgress, setFormData }: {{ setSuccess: (value:boolean)=> void, setMessage: (value:string)=> void, selectedService: any, formData: any, setProgress: any, setFormData:any }) => {
+// }
 
 function Status({ progress }: { progress: number }) {
     const [isVisible, setIsVisible] = useState(false);
@@ -510,4 +529,4 @@ function Progress({ progress }: { progress: number }) {
     )
   }
 
-export default BurnSPLView
+export default PaySolView
