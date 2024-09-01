@@ -20,13 +20,14 @@ import Header from '@/components/header'
 import Socials from '@/components/socials'
 import MobileWarning from '@/components/mobileWarn'
 import TxAlert from '@/components/txAlert'
+import { getMS2Equiv } from '@/lib/raydium';
 
 require('@solana/wallet-adapter-react-ui/styles.css');
 
 const options = [
     { id: 1, name: 'Custom Lora Training', amount: 1000000, type: 'exact'},
-    { id: 2, name: 'Groupchat Admin Mode', amount: 1000000, type: 'minimum'},
-    { id: 3, name: 'stationthisbot Clone', amount: 5000000, type: 'exact'},
+    //{ id: 2, name: 'Groupchat Admin Mode', amount: 1000000, type: 'minimum'},
+    //{ id: 3, name: 'stationthisbot Clone', amount: 5000000, type: 'exact'},
     { id: 4, name: 'just because XD', amount: 0, type: 'minimum'}
 ]
 
@@ -150,13 +151,18 @@ function classNames(...classes:string[]) {
                   />
                 </div>
               </div>
-              {selectedService.type === 'exact' && (
-                    <div className="mt-4 flex mx-auto justify-center text-lg font-bold text-lg text-white cursor-pointer transition-colors duration-300">
-                        $MS2 {selectedService.amount}
-                    </div>
+                {selectedService.id === 1 && (
+                  <div className="mt-4 flex mx-auto justify-center text-lg font-bold text-lg text-white cursor-pointer transition-colors duration-300">
+                    <HowMuchForLora/>
+                  </div>
                 )}
+                {selectedService.id != 1 && selectedService.type === 'exact' && (
+                      <div className="mt-4 flex mx-auto justify-center text-lg font-bold text-lg text-white cursor-pointer transition-colors duration-300">
+                          $MS2 {selectedService.amount}
+                      </div>
+                  )}
 
-                {selectedService.type === 'minimum' && (
+                {selectedService.id != 1 && selectedService.type === 'minimum' && (
                     <div className="mt-4 flex mx-auto justify-center">
                         <label className="block text-lg text-white cursor-pointer transition-colors duration-300">
                             Amount to Burn (Minimum $MS2 {selectedService.amount})
@@ -244,6 +250,7 @@ const BurnSPLView: React.FC = ({}) => {
     <Header />
     <div className="h-screen w-80">
     <Wallet />
+    
     </div>
     <Socials />
     </>
@@ -267,13 +274,28 @@ const fetchTokenAccount = async (publicKey: string) => {
     }
 };
 
+const HowMuchForLora = () => {
+  const [amountMs2, setAmountMs2] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchAmount = async () => {
+      const amount = await getMS2Equiv();
+      setAmountMs2(amount);
+      options[0].amount = amount;
+    };
+
+    fetchAmount();
+  }, []);
+
+  return (
+    <h1>$MS2 {amountMs2 !== null ? ' '+amountMs2 : 'Loading...'}</h1>
+  );
+};
+
 const BurnMS2 = ({ setSuccess, setMessage, selectedService, formData, setProgress, setFormData }: { setSuccess: (value:boolean)=> void, setMessage: (value:string)=> void, selectedService: any, formData: any, setProgress: any, setFormData:any }) => {
 
     const { publicKey, signTransaction } = useWallet();
     const [isBurning, setIsBurning] = useState<boolean>(false);
-    
-    
-    
 
     return (
         <>
@@ -424,6 +446,8 @@ const BurnMS2 = ({ setSuccess, setMessage, selectedService, formData, setProgres
             >
                 {isBurning ? 'Burning...' : `Burn MS2`}
             </button>
+            
+            
         </div>
         {/* <div>
             {message && <p>{message}</p>}
@@ -472,13 +496,13 @@ function Status({ progress }: { progress: number }) {
                 <Progress progress={progress} />
                 <div className="flex-auto m-5">
                 {progress === 100 && (
-                                    <button
-                                        onClick={handleClose}
-                                        className="mt-4 rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                    >
-                                        Close
-                                    </button>
-                                )}
+                      <button
+                          onClick={handleClose}
+                          className="mt-4 rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      >
+                          Close
+                      </button>
+                  )}
                 </div>
               </div>
             </div>
