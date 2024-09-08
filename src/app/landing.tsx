@@ -21,44 +21,70 @@ const timeline = [
     dateTime: '2024-04',
   },
   {
-    name: 'Shipped Whale-Mode',
+    name: 'First img2vid flow: ms3',
     description:
-      'Its simple. If you have more tokens, you get to have more fun.',
-    date: 'April 17th',
-    dateTime: '2024-04',
+      'First pass at an image to video workflow',
+    date: 'June 17th',
+    dateTime: '2024-06',
   },
   {
-    name: 'WHATS NEXT',
+    name: 'Cloud hosted bot',
     description: 
-    '',
-    date: 'TBD',
-    dateTime: '2024-05'
+    'Scalable, Clonable, comfyui backend more capabilit',
+    date: 'July 11th',
+    dateTime: '2024-07'
+  },
+  {
+    name: 'Added SD3',
+    description: 
+    'Stable Diffusion 3 kinda blows but we had it as soon as it dropped',
+    date: 'July 29th',
+    dateTime: '2024-07'
+  },
+  {
+    name: 'Petravoice custom Lora',
+    description: 'one of many publically released custom loras trained personally by dev',
+    date: 'August 7th',
+    dateTime: '2024-08'
+  },
+  {
+    name: 'UI OVERHAUL',
+    description: 'dev made bot better, (after making it worse)',
+    date: 'August 10th',
+    dateTime: '2024-08'
+  },
+  {
+    name: 'GROUPCHAT SHIPPED',
+    description: 'sponsor your groupchat so they dont have to buy ms2',
+    date: 'September 1st',
+    dateTime: '2024-09'
   }
 ]
-{/* <ul className="list-disc pl-5 mb-4">
-<li>Advanced ComfyUI workflows for seamless creation</li>
-<li>NFT collection creation mode—turn your visions into valuable assets</li>
-<li>Uncensored LLM access for unbridled creative exploration</li>
-<li>Full Stable Diffusion functionality: inpainting, outpainting, upscaling, and more</li>
-</ul> */}
+
 const features = [
   {
     id: 1,
-    name: 'Advanced ComfyUI Workflows',
+    name: 'Custom Trained Lora',
     description:'Seamless creation. We are constantly shipping additional features with the help of a braod library of comfyui workflows. Anything is possible.',
-    expectedMC:'6,000,000 MS2'
+    expectedMC:'$250 worth of MS2 Burned'
   },
   {
     id: 2,
-    name: 'NFT Collection Creation Mode',
-    description: 'Turn your visions into valuable assets on the blockchain right from your phone.',
-    expectedMC:'10,000,000 MS2'
+    name: 'stationthisbot Clone',
+    description: 'Same power, different name, work with us to create your perfect SD bot',
+    expectedMC: 'TBD'
   },
   {
     id: 3,
+    name: 'NFT Collection Creation Mode',
+    description: 'Turn your visions into valuable assets on the blockchain right from your phone.',
+    expectedMC:'TBD'
+  },
+  {
+    id: 4,
     name: 'Uncencored LLM Access',
     description: 'Unbridled Creative Exploration and Efficient Assistance. Throw off the yoke of BIG AI gay censorship.',
-    expectedMC: '100000,000,00 MS2'
+    expectedMC: 'TBD'
   },
   // {
   //   id: 4,
@@ -118,7 +144,7 @@ function LandingContent({ selectedOption, handleOptionClick }: { selectedOption:
           <p onClick={(e: React.MouseEvent<HTMLParagraphElement>) => handleOptionClick("stationthis")} className="text-shadow-white hover:text-blue-600 hover:text-shadow-sm">stationthis $MS2 </p>
         </div>
         <div className="absolute left-1/2 top-1/5 transform -translate-x-1/2 py-1 px-6 text-lg text-white cursor-pointer text-shadow-white transition-colors duration-300 hover:text-blue-600 hover:text-shadow-sm">
-          <p onClick={(e: React.MouseEvent<HTMLParagraphElement>) => handleOptionClick("miladystation2")} className="text-shadow-white hover:text-blue-600 hover:text-shadow-sm">stationthiswebui</p>
+          <p onClick={(e: React.MouseEvent<HTMLParagraphElement>) => handleOptionClick("miladystation2")} className="text-shadow-white hover:text-blue-600 hover:text-shadow-sm">🚧😳🤐😼🚧</p>
         </div>
     </div>
   );
@@ -153,10 +179,10 @@ const StationThisBotContent = () => {
               </p>
               </div>
               <Image
-              src="/images/mountains.jpg"
+              src="/images/infoPage/mogcat.jpeg"
               width={500}
               height={500}
-              alt="MS2 Creation"
+              alt="Made on stationthisbot fr, 100% MS2 Creation"
               className="mt-10 rounded-2xl object-cover sm:mt-16 lg:mt-0 lg:max-w-none xl:row-span-2 xl:row-end-2 xl:mt-36"
               />
             </div>
@@ -206,7 +232,7 @@ const StationThisBotContent = () => {
               <div className="flex flex-wrap items-start justify-end gap-6 sm:gap-8 lg:contents">
                 <div className="w-0 flex-auto lg:ml-auto lg:w-auto lg:flex-none lg:self-end">
                   <img
-                    src="/images/fesh.jpg"
+                    src="/images/infoPage/mogcatgatsby.jpeg"
                     alt=""
                     className="aspect-[7/5] w-[37rem] max-w-none rounded-2xl bg-gray-50 object-cover"
                   />
@@ -214,23 +240,23 @@ const StationThisBotContent = () => {
                 <div className="contents lg:col-span-2 lg:col-end-2 lg:ml-auto lg:flex lg:w-[37rem] lg:items-start lg:justify-end lg:gap-x-8">
                   <div className="order-first flex w-64 flex-none justify-end self-end lg:w-auto">
                     <img
-                      src="/images/kingdomheartjump.jpg"
-                      alt=""
+                      src="/images/infoPage/cultjackson.jpeg"
+                      alt="remilia jackson"
                       className="aspect-[4/3] w-[24rem] max-w-none flex-none rounded-2xl bg-gray-50 object-cover"
                     />
                   </div>
                   <div className="flex w-96 flex-auto justify-end lg:w-auto lg:flex-none">
                     <img
                       
-                      src="/images/goils.jpg"
-                      alt=""
+                      src="/images/infoPage/yakub.jpeg"
+                      alt="inventor of white people"
                       className="aspect-[7/5] w-[37rem] max-w-none flex-none rounded-2xl bg-gray-50 object-cover"
                     />
                   </div>
                   <div className="hidden sm:block sm:w-0 sm:flex-auto lg:w-auto lg:flex-none">
                     <img
                       
-                      src="/images/tucker.jpg"
+                      src="/images/infoPage/chudjak.jpeg"
                       alt=""
                       className="aspect-[4/3] w-[24rem] max-w-none rounded-2xl bg-gray-50 object-cover"
                     />
@@ -241,24 +267,6 @@ const StationThisBotContent = () => {
           </div>
         </div>
 
-
-    {/* <h2 className="text-2xl font-semibold text-gray-800 mt-8 mb-4">Telegram is the New Command Line Interface</h2>
-    <p className="text-base text-gray-700 mb-4">
-      Zoomers don’t know how to fuckin code, but I’ll be damned if they can’t come up with retarded ass memes. With MS2, Telegram evolves into your personal command line fiver rugcore artist army. Engage with our intuitive bot to leverage Stable Diffusion’s capabilities directly from your smartphone—no coding required. Seamlessly transform your thoughts into visual art, engage with uncensored language models, and even sculpt entire NFT collections.
-    </p>
-    <Image
-    src="/images/planets.jpg"
-    width={500}
-    height={500}
-    alt="MS2 Creation"
-    />
-    <button
-        type="button"
-        className="rounded-full bg-mony px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-mony focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mony"
-        onClick={()=>{handleOpenLink('https://t.me/MONYGROUPPORTAL')}}
-      >
-        Join the Alpha Group
-      </button> */}
 
 <div className="mx-auto mt-32 max-w-7xl px-6 sm:mt-40 lg:px-8">
           <div className="mx-auto flex max-w-2xl flex-col items-end justify-between gap-16 lg:mx-0 lg:max-w-none lg:flex-row">
@@ -278,8 +286,8 @@ const StationThisBotContent = () => {
         Check the Chart
       </button>
               <img
-                src="/images/milady.jpg"
-                alt=""
+                src="/images/infoPage/wifeystation.jpeg"
+                alt="first wifeystation"
                 className="mt-16 aspect-[6/5] w-full rounded-2xl bg-gray-50 object-cover lg:aspect-auto lg:h-[34.5rem]"
               />
             </div>
@@ -308,33 +316,6 @@ const StationThisBotContent = () => {
           </div>
         </div>
 
-    {/* <h2 className="text-2xl font-semibold text-gray-800 mt-8 mb-4">Get in now or cope forever</h2>
-    <p className="text-base text-gray-700 mb-4">
-      Left curve - right curve unite! Retards love us, Topwits want to build with us. Midwits will miss out on generational wealth AGAIN. StationThisBot (powered by $MS2) is currently operational and brimming with potential, shipping features DAILY that will redefine user interaction:
-    </p>
-      <ul className="list-disc pl-5 mb-4">
-        <li>Advanced ComfyUI workflows for seamless creation</li>
-        <li>NFT collection creation mode—turn your visions into valuable assets</li>
-        <li>Uncensored LLM access for unbridled creative exploration</li>
-        <li>Full Stable Diffusion functionality: inpainting, outpainting, upscaling, and more</li>
-      </ul>
-      <p className="text-base text-gray-700 mb-4">
-      By investing early in MS2 coins, you are making large amounts of profit. Experts say 10M market cap in 2 hours from now.
-      </p>
-      <Image
-    src="/images/milady.jpg"
-    width={500}
-    height={500}
-    alt="MS2 Creation"
-    />
-      <button
-        type="button"
-        className="rounded-full bg-mony px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-mony focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mony"
-        onClick={()=>{handleOpenLink('https://www.dextools.io/app/en/solana/pair-explorer/3gwq3YqeBqgtSu1b3pAwdEsWc4jiLT8VpMEbBNY5cqkp?t=1714358138680')}}
-      >
-
-        Check the Chart
-      </button> */}
 <div className="mx-auto max-w-7xl px-6 lg:px-8"></div>
 <div className="mt-32 overflow-hidden sm:mt-40">
           <div className="mx-auto max-w-7xl px-6 lg:flex lg:px-8">
@@ -355,7 +336,7 @@ const StationThisBotContent = () => {
               <div className="flex flex-wrap items-start justify-end gap-6 sm:gap-8 lg:contents">
                 <div className="w-0 flex-auto lg:ml-auto lg:w-auto lg:flex-none lg:self-end">
                   <img
-                    src="/images/goil.jpg"
+                    src="/images/infoPage/kemonokakisteen.jpeg"
                     alt=""
                     className="aspect-[7/5] w-[37rem] max-w-none rounded-2xl bg-gray-50 object-cover"
                   />
@@ -363,7 +344,7 @@ const StationThisBotContent = () => {
                 <div className="contents lg:col-span-2 lg:col-end-2 lg:ml-auto lg:flex lg:w-[37rem] lg:items-start lg:justify-end lg:gap-x-8">
                   <div className="order-first flex w-64 flex-none justify-end self-end lg:w-auto">
                     <img
-                      src="/images/joetrump.jpg"
+                      src="/images/infoPage/smol.jpeg"
                       alt=""
                       className="aspect-[4/3] w-[24rem] max-w-none flex-none rounded-2xl bg-gray-50 object-cover"
                     />
@@ -371,7 +352,7 @@ const StationThisBotContent = () => {
                   <div className="flex w-96 flex-auto justify-end lg:w-auto lg:flex-none">
                     <img
                       
-                      src="/images/masterchief.jpg"
+                      src="/images/infoPage/banksmogcat.jpeg"
                       alt=""
                       className="aspect-[7/5] w-[37rem] max-w-none flex-none rounded-2xl bg-gray-50 object-cover"
                     />
@@ -379,7 +360,7 @@ const StationThisBotContent = () => {
                   <div className="hidden sm:block sm:w-0 sm:flex-auto lg:w-auto lg:flex-none">
                     <img
                       
-                      src="/images/baron.jpg"
+                      src="/images/infoPage/luwei.jpeg"
                       alt=""
                       className="aspect-[4/3] w-[24rem] max-w-none rounded-2xl bg-gray-50 object-cover"
                     />
@@ -389,26 +370,7 @@ const StationThisBotContent = () => {
             </div>
           </div>
         </div>
-        
 
-    {/* <h2 className="text-2xl font-semibold text-gray-800 mt-8 mb-4">Exclusivity and Utility: The Investor’s Edge</h2>
-    <p className="text-base text-gray-700 mb-4">
-      Holders of MS2 coins will find their wallets unlocking new realms of possibility. Our tiered feature access ensures that the more you invest, the more the platform evolves to serve you. High-token wallets gain exclusive access to premium features, enhancing both your creative capabilities and investment portfolio. The cabal group chat she tells you not to worry about will be pumping coins with jet fuel tech access while you and your friends use photoshop lasso tool to put nft pictures on marvel super heros. GET FUCKED 
-    </p>
-    <Image
-    src="/images/hulk.jpg"
-    width={500}
-    height={500}
-    alt="MS2 Creation"
-    />
-    <button
-        type="button"
-        className="rounded-full bg-mony px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-mony focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mony"
-        onClick={()=>{handleOpenLink('https://jup.ag/swap/SOL-AbktLHcNzEoZc9qfVgNaQhJbqDTEmLwsARY7JcTndsPg')}}
-      >
-        Buy MS2 NOW
-      </button>
-     */}
 
 <div className="mx-auto my-10 max-w-2xl lg:mx-0 lg:max-w-none">
           <p className="text-base font-semibold leading-7 text-mony">Superior Ponzinomics</p>
@@ -434,21 +396,8 @@ const StationThisBotContent = () => {
             </div>
           </div>
         </div>
-      
-      
-
-    {/* <h2 className="text-2xl font-semibold text-gray-800 mt-8 mb-4">Beyond the Coin: A Vision for B2B Expansion</h2>
-    <p className="text-base text-gray-700 mb-4">
-      The horizon promises more than just individual empowerment. MS2 is poised to become a pivotal B2B conduit in the digital art and AI space. Your investment today does more than secure technology—it paves the way for a sustainable revenue model that’s as innovative as the technology it supports.
-    </p>
-
-    <h2 className="text-2xl font-semibold text-gray-800 mt-8 mb-4">Join the MS2 Movement</h2>
-    <p className="text-base text-gray-700 mb-4">
-      Don’t let the future pass you by. Embrace the MS2 project and join a community that’s setting the pace for digital and financial innovation. Invest in MS2 coin today and place yourself on the cutting edge of the next digital explosion.
-    </p> */}
   </div>
   );
 };
-
 
 export default Landing
