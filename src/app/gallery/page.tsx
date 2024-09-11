@@ -8,12 +8,12 @@ import {
     WalletModalProvider,
     WalletMultiButton
 } from '@solana/wallet-adapter-react-ui';
-import { clusterApiUrl } from '@solana/web3.js';
+import { clusterApiUrl, PublicKey } from '@solana/web3.js';
 import { useWallet } from '@solana/wallet-adapter-react';
 import Header from '../../components/header';
 import Socials from '../../components/socials';
 
-import Workspace from '@/components/stationthis/workspace'
+import Gallery from '@/components/stationthis/gallery'
 
 // Default styles for the wallet button
 require('@solana/wallet-adapter-react-ui/styles.css');
@@ -23,7 +23,7 @@ const Verify: FC = () => {
 
     // Conditionally render the Workspace component if the user is authenticated
     if (isAuthenticated) {
-        return <Workspace />;
+        return <Gallery publicKey = {PublicKey}/>;
     }
 
     return (

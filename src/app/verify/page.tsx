@@ -3,21 +3,15 @@
 import React, { FC, useMemo, useCallback, useState } from 'react';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
-import { WalletConnectWalletAdapter, PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
+import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
 import {
     WalletModalProvider,
-    WalletDisconnectButton,
     WalletMultiButton
 } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl } from '@solana/web3.js';
-
-import { WalletNotConnectedError } from '@solana/wallet-adapter-base';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { Keypair, SystemProgram, Transaction } from '@solana/web3.js';
+import { useWallet } from '@solana/wallet-adapter-react';
 import Header from '../../components/header'
 import Socials from '../../components/socials'
-import CryptoJS from 'crypto-js';
-import {salt} from './_salt';
 
 // Default styles that can be overridden by your app
 require('@solana/wallet-adapter-react-ui/styles.css');
@@ -95,11 +89,28 @@ const SignWithWallet = () => {
         try {
             const signature = signMessage ? await signMessage(encodedMessage) : null;
             const timestamp = Math.floor(Date.now() / 60000); // Current time in minutes
-            const salted = salt; // This should be a secure, randomly generated value or constant
-            console.log(publicKey.toBase58() + timestamp + salted);
-            const generatedHash = CryptoJS.SHA256(publicKey.toBase58() + timestamp + salted).toString();
+            //const salted = salt; // This should be a secure, randomly generated value or constant
+            //console.log(publicKey.toBase58() + timestamp + salted);
+            const response = await fetch('/api/createHash', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    publicKey: publicKey.toBase58(),
+                    timestamp,
+                }),
+            });
+    
+            if (response.ok) {
+                const data = await response.json();
+                setHash(data.hash);
+            } else {
+                const errorData = await response.json();
+                setHash('Error generating hash: ' + errorData.error);
+            }
 
-            setHash(generatedHash);
+            //setHash(generatedHash);
             setShowHash(true);  // Display hash and copy button
         } catch (error) {
             console.error('Error signing message: ', error);

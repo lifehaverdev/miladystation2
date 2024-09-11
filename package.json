@@ -29,6 +29,7 @@
     "comfydeploy": "^0.0.17",
     "crypto-js": "^4.2.0",
     "flowbite": "^2.4.1",
+    "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.404.0",
     "mongodb": "^6.7.0",
     "next": "14.2.3",
@@ -48,6 +49,7 @@
   },
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",
+    "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20",
     "@types/node-telegram-bot-api": "^0.64.6",
     "@types/react": "^18",

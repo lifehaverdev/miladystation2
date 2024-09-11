@@ -380,19 +380,11 @@ const StationThisBotContent = () => {
               <p>
               The horizon promises more than just individual empowerment. MS2 is poised to become a pivotal B2B conduit in the digital art and AI space. Your investment today does more than secure technology—it paves the way for a sustainable revenue model that’s as innovative as the technology it supports.
               </p>
-              {/* <p className="mt-8">
-              Don’t let the future pass you by. Embrace the MS2 project and join a community that’s setting the pace for digital and financial innovation. Invest in MS2 coin today and place yourself on the cutting edge of the next digital explosion.
-              </p> */}
             </div>
             <div>
               <p>
               Don’t let the future pass you by. Embrace the MS2 project and join a community that’s setting the pace for digital and financial innovation. Invest in MS2 coin today and place yourself on the cutting edge of the next digital explosion.
               </p>
-              {/* <p className="mt-8">
-                Et vitae blandit facilisi magna lacus commodo. Vitae sapien duis odio id et. Id blandit molestie auctor
-                fermentum dignissim. Lacus diam tincidunt ac cursus in vel. Mauris varius vulputate et ultrices hac
-                adipiscing egestas. Iaculis convallis ac tempor et ut. Ac lorem vel integer orci.
-              </p> */}
             </div>
           </div>
         </div>
