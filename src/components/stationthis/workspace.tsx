@@ -1,17 +1,19 @@
 'use client'
 
-import Header from '@/components/header'
-//import Socials from '@/components/socials'
 import React, { useState } from 'react';
 import Image from 'next/image'
 
-const Workspace = () => {
+interface WorkspaceProps {
+    publicKey: string | null;
+}
+
+const Workspace = ({publicKey}:WorkspaceProps) => {
   const [showLeftPanel, setShowLeftPanel] = useState(false);
   const [showRightPanel, setShowRightPanel] = useState(false);
 
   return (
     <>
-    <Header/>
+    {/* <Header/> */}
     <div className="container mx-auto px-4 sm:px-6 lg:px-5">
     <div className="flex h-20">
         <h1 className="text-white text-center text-7xl">Stationthisbot online</h1>

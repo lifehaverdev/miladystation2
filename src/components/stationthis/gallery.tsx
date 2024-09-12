@@ -8,21 +8,26 @@ interface Generation {
     prompt: string;
 }
 
-// Example placeholder for fetching generations from the database based on the public key
-// Replace this with your actual database fetching logic
-const fetchGenerationsByPublicKey = async (publicKey: string, page: number): Promise<Generation[]> => {
-    // Simulated database fetch based on public key and pagination (page)
-    const mockData: Generation[] = [
-        { id: '1', url: 'https://example.com/image1.png', prompt: 'Prompt 1 details' },
-        { id: '2', url: 'https://example.com/image2.png', prompt: 'Prompt 2 details' },
-        { id: '3', url: 'https://example.com/image3.png', prompt: 'Prompt 3 details' },
-        { id: '4', url: 'https://example.com/image4.png', prompt: 'Prompt 4 details' },
-        { id: '5', url: 'https://example.com/image5.png', prompt: 'Prompt 5 details' },
-        { id: '6', url: 'https://example.com/image6.png', prompt: 'Prompt 6 details' },
-        // Add more data to simulate pagination
-    ];
+const fetchGenerations = async (publicKey: string, page: number) => {
+    try {
+        const response = await fetch('/api/getGens', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ publicKey, page }),
+        });
 
-    return mockData;
+        if (!response.ok) {
+            throw new Error('Failed to fetch generations');
+        }
+
+        const generations = await response.json();
+        return generations;  // Array of Generation objects
+    } catch (error) {
+        console.error('Error fetching generations:', error);
+        return [];
+    }
 };
 
 interface ImageGalleryProps {
@@ -37,7 +42,7 @@ const Gallery: React.FC<ImageGalleryProps> = ({ publicKey }) => {
 
     useEffect(() => {
         // Fetch the generations from your database based on the publicKey and page
-        fetchGenerationsByPublicKey(publicKey, page).then(setGenerations);
+        fetchGenerations(publicKey, page).then(setGenerations);
     }, [publicKey, page]);
 
     const handleNextPage = () => {
@@ -52,7 +57,7 @@ const Gallery: React.FC<ImageGalleryProps> = ({ publicKey }) => {
 
     return (
         <>
-        <Header />
+        {/* <Header /> */}
         <div className="flex flex-col items-center justify-center">
             {/* Header: Display Wallet Address */}
             <div className="p-4 text-white bg-black rounded-lg">
