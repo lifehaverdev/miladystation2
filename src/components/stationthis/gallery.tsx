@@ -75,8 +75,8 @@ const Gallery: React.FC<ImageGalleryProps> = ({ publicKey }) => {
                         <Image
                             src={gen.url}
                             alt="Generated image"
-                            width="32"
-                            height="32"
+                            width="60"
+                            height="60"
                             // className="w-32 h-32 rounded-lg"
                         />
                     </div>
