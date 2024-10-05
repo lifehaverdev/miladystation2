@@ -65,7 +65,7 @@ const Gallery: React.FC<ImageGalleryProps> = ({ publicKey }) => {
             </div>
 
             {/* Grid of Images */}
-            <div className="grid grid-cols-3 gap-4 p-6">
+            <div className="grid grid-cols-3 gap-4 p-4">
                 {generations.slice(0, imagesPerPage).map((gen) => (
                     <div
                         key={gen.id}
@@ -75,8 +75,8 @@ const Gallery: React.FC<ImageGalleryProps> = ({ publicKey }) => {
                         <Image
                             src={gen.url}
                             alt="Generated image"
-                            width="60"
-                            height="60"
+                            width="160"
+                            height="160"
                             // className="w-32 h-32 rounded-lg"
                         />
                     </div>
@@ -99,7 +99,7 @@ const Gallery: React.FC<ImageGalleryProps> = ({ publicKey }) => {
             )}
 
             {/* Pagination Controls */}
-            <div className="flex justify-center mt-6 space-x-4">
+            <div className="flex justify-center mt-4 space-x-4">
                 <button
                     className="px-4 py-2 bg-gray-500 rounded-full text-white"
                     onClick={handlePreviousPage}

@@ -17,7 +17,7 @@ const fetchGenerationsByPublicKey = async (publicKey: string, page: number): Pro
     const pageSize = 10;  // Number of documents (images) to return per page
 
     const client = new MongoClient(uri);
-    console.log('here we gooooo!!!!!')
+    //console.log('here we gooooo!!!!!')
     try {
         // Connect to MongoDB
         await client.connect();
@@ -50,29 +50,6 @@ const fetchGenerationsByPublicKey = async (publicKey: string, page: number): Pro
     }
 };
 
-// API route handler
-// export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-//     // Extract the publicKey and page from the query params
-//     const { publicKey, page } = req.query;
-
-//     // Validate the request parameters
-//     if (!publicKey || !page) {
-//         return res.status(400).json({ error: 'Missing publicKey or page' });
-//     }
-
-//     try {
-//         // Fetch generations from the database
-//         const generations = await fetchGenerationsByPublicKey(publicKey as string, parseInt(page as string, 10));
-        
-//         // Return the fetched generations
-//         return res.status(200).json(generations);
-
-//     } catch (error) {
-//         console.error('Error in /api/getGenerations:', error);
-//         return res.status(500).json({ error: 'Internal server error' });
-//     }
-// }
-
 // POST request handler for Next.js API route
 export async function POST(req: NextRequest) {
     try {
@@ -89,6 +66,7 @@ export async function POST(req: NextRequest) {
 
         // Return the fetched generations as JSON
         return NextResponse.json(generations, { status: 200 });
+        
 
     } catch (error) {
         console.error('Error fetching generations:', error);

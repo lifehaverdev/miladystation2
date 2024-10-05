@@ -23,24 +23,29 @@ import TxAlert from '@/components/txAlert'
 
 require('@solana/wallet-adapter-react-ui/styles.css');
 
+import createBalancedBar from '@/components/charge/pointsbar'
+const POINTMULTI = 540;
+const NOCOINERSTARTER = 199800;
+
 const options = [
-    { id: 1, name: 'Charge your Group', amount: 100000, type: 'minimum'},
-    { id: 2, name: 'Tip the Dev', amount: 100000, type: 'minimum'},
+    { id: 1, name: 'User Points', amount: 0, type: 'minimum'},
+    { id: 2, name: 'Group Points', amount: 100000, type: 'minimum'},
+    { id: 3, name: 'Tip the Dev', amount: 100000, type: 'minimum'},
 ]
+
 
 function classNames(...classes:string[]) {
     return classes.filter(Boolean).join(' ')
   }
 
-  const Dropdown = ({ selectedService, setSelectedService, amount, setAmount }: { selectedService: any, setSelectedService: (value: any) => void, amount: number, setAmount: (value: number) => void }) => {
-    const [selected, setSelected] = useState(options[0])
+  const Dropdown = ({ selectedService, setSelectedService }: { selectedService: any, setSelectedService: (value: any) => void }) => {
   
     return (
       <Listbox value={selectedService} onChange={setSelectedService}>
         {({ open }) => (
           <>
             <Listbox.Label className="block text-sm font-medium leading-6 text-gray-900"></Listbox.Label>
-            <br></br>
+            {/* <br></br> */}
             <div className="relative mt-2">
               <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
                 <span className="block truncate">{selectedService.name}</span>
@@ -176,77 +181,313 @@ function classNames(...classes:string[]) {
     )
   }
 
-const PaySolView: React.FC = ({}) => {
-    const [selectedService, setSelectedService] = useState(options[0]);
-    const [formData, setFormData] = useState({
-        projectName: '',
-        twitterHandle: '',
-        telegramHandle: ''
-    });
-    const [amount, setAmount] = useState(selectedService.amount);
-    const [progress, setProgress] = useState<number>(0);
-    const [message, setMessage] = useState<string>("");
-    const [success, setSuccess] = useState<boolean>(false);
+  interface SwapFormProps {
+    children: React.ReactNode; // Accepting children elements
+}
 
-    const closeTxError = () => {
-        setMessage('');
-    };
 
-    const Wallet: FC = () => {
-        // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
-        const network = WalletAdapterNetwork.Mainnet;
 
-        // You can also provide a custom RPC endpoint.
-        const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+const SwapForm: React.FC<SwapFormProps> = ({ children }) => {
+    const [cryptoAmount, setCryptoAmount] = useState(0);
+    const [pointsAmount, setPointsAmount] = useState(0);
+    const POINTS_PER_CRYPTO = 1000; // Example conversion rate
 
-        const wallets = useMemo(
-            () => [
-                new PhantomWalletAdapter(),
-                new SolflareWalletAdapter(),
-            ],
-            // eslint-disable-next-line react-hooks/exhaustive-deps
-            [network]
-        );
+    const [loading, setLoading] = useState(true); // Loading state
+    const [userInfo, setUserInfo] = useState<any>(null); // User info state
+    const [discounts, setDiscounts] = useState<any>(null);
+    const [solPrice, setSolPrice] = useState<number>(160);
+    const [pointPriceUSD, setPointPriceUSD] = useState<number>(0.001284)
+    const { publicKey } = useWallet()
 
-        return (
-            <ConnectionProvider endpoint={endpoint}>
-                <WalletProvider wallets={wallets} autoConnect>
-                    <WalletModalProvider>
-                    
-                    <div className="flex items-center justify-center min-h-screen">
-                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center space-y-2">
-                        {/* <div className="flex flex-col items-center transform translate-x-1/2"> */}
-                            <br></br>
-                            <br></br>
-                            <br></br>
-                            
-                            <MobileWarning />
-                            <Status progress={progress}/>
-                            <WalletMultiButton />
-                            <TxAlert message={message} onClose={closeTxError} success={success}/>
-                            <Dropdown selectedService={selectedService} setSelectedService={setSelectedService} amount={amount} setAmount={setAmount}/>
-                            <Form selectedService={selectedService} amount={amount} setAmount={setAmount} formData={formData} setFormData={setFormData} />
-                            <PayDev setSuccess={setSuccess} setMessage={setMessage} selectedService={selectedService} formData={formData} setFormData={setFormData} setProgress={setProgress}/>
-                        </div>
-                    </div>
-                    </WalletModalProvider>
-                </WalletProvider>
-            </ConnectionProvider>
-        );
-    };
+    const calculateDiscounts = (userInfo: any) => {
+      console.log('we calculate discount')
+      const { balance, burns, exp } = userInfo;
+  
+      // Discount based on MS2 balance (25% discount if balance >= 600,000)
+      const ms2BalanceDiscount = balance >= 6000000 ? 25 : (balance / 600000) * 25;
+  
+      // Discount based on MS2 burned (25% discount if burned >= 300,000)
+      const ms2BurnDiscount = burns >= 300000 ? 25 : (burns / 300000) * 25;
+  
+      // Discount based on user level (25% discount if level >= 100)
+      const userLevel = Math.floor(Math.cbrt(exp));
+      const levelDiscount = userLevel >= 100 ? 25 : (userLevel / 100) * 25;
+      console.log('calculated discounts',ms2BalanceDiscount,ms2BurnDiscount,levelDiscount)
+      // Return the calculated discounts
+      return {
+          ms2BalanceDiscount: Math.min(ms2BalanceDiscount, 25),  // Ensure max 25%
+          ms2BurnDiscount: Math.min(ms2BurnDiscount, 25),        // Ensure max 25%
+          levelDiscount: Math.min(levelDiscount, 25),            // Ensure max 25%
+      };
+  };
+
+  const calculatePointCost = (discounts: { ms2BalanceDiscount: number, ms2BurnDiscount: number, levelDiscount: number }) => {
+    
+    const baseCostPerPoint = 0.001284; // Base cost for the user with no discounts
+    if(!discounts){
+      return baseCostPerPoint
+    }
+    // Calculate the total discount by summing the three discount types
+    const totalDiscount = (discounts.ms2BalanceDiscount || 0) + (discounts.ms2BurnDiscount || 0) + (discounts.levelDiscount || 0);
+    
+    // Cap the total discount at 75% (if total discount exceeds 75)
+    const effectiveDiscount = Math.min(totalDiscount, 75);
+    
+    // Calculate the final cost per point by applying the discount to the base cost
+    const discountedCostPerPoint = baseCostPerPoint * (1 - effectiveDiscount / 100);
+    
+    // Return the final cost per point
+    return discountedCostPerPoint.toFixed(6);  // Format to 6 decimal places
+};
 
   
+    // Simulate loading user data
+    // useEffect(() => {
+    //     // Simulate fetching from the database (1 second delay)
+    //     setTimeout(() => {
+    //         // Mocked user info for now
+    //         const mockUserInfo = {
+    //             level: 5,
+    //             pointsPerPeriod: 5000,
+    //             qoints: 4000,
+    //             ms2Holdings: 300
+    //         };
+    //         setUserInfo(mockUserInfo);
+    //         setLoading(false);
+    //     }, 1000);
+    // }, []);
+  //   useEffect(() => {
+  //     const fetchUserData = async () => {
+  //         if (publicKey) {
+  //             try {
+  //               console.log('we gettin data')
+  //                 // Fetch experience data
+  //                 const expResponse = await fetch(`/api/getUserStats`, {
+  //                     method: 'POST',
+  //                     body: JSON.stringify({ publicKey: publicKey.toBase58() }),
+  //                     headers: { 'Content-Type': 'application/json' },
+  //                 });
+  //                 const expData = await expResponse.json();
 
-  return (
-    <>
-    <Header />
-    <div className="h-screen w-80">
-    <Wallet />
-    </div>
-    <Socials />
-    </>
-  );
+  //                 // Fetch burns data
+  //                 const burnsResponse = await fetch(`/api/getUserBurns`, {
+  //                     method: 'POST',
+  //                     body: JSON.stringify({ publicKey: publicKey.toBase58() }),
+  //                     headers: { 'Content-Type': 'application/json' },
+  //                 });
+  //                 const burnsData = await burnsResponse.json();
+
+  //                 // Fetch balance data
+  //                 const balanceResponse = await fetch(`/api/getMS2Balance`, {
+  //                     method: 'POST',
+  //                     body: JSON.stringify({ publicKey: publicKey.toBase58() }),
+  //                     headers: { 'Content-Type': 'application/json' },
+  //                 });
+  //                 const balanceData = await balanceResponse.json();
+
+  //                 const groupsResponse = await fetch(`/api/getGroups`, {
+  //                   method: 'POST',
+  //                   body: JSON.stringify({ publicKey: publicKey.toBase58() }),
+  //                   headers: { 'Content-Type': 'application/json' },
+  //               });
+  //               const groupsData = await groupsResponse.json()
+  //                 //console.log('we got',expData,burnsData,balanceData,groupsData)
+  //                 // Combine all data
+  //                 setUserInfo({
+  //                     exp: expData.exp,
+  //                     points: expData.points,
+  //                     qoints: expData.qoints,
+  //                     doints: expData.doints,
+  //                     burns: burnsData.totalBurn,
+  //                     balance: balanceData.balance,
+  //                     group: groupsData.groupChatDetails ? groupsData.groupChatDetails : false
+  //                 });
+                  
+                  
+  //                 setLoading(false);
+  //             } catch (error) {
+  //                 console.error("Error fetching user data:", error);
+  //                 setLoading(false);
+  //             }
+  //         }
+  //     };
+
+  //     fetchUserData();
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [publicKey]);
+  // Function to fetch all necessary data
+  const fetchUserData = useCallback(async () => {
+    if (!publicKey) return;
+
+    try {
+        setLoading(true);
+
+        // Fetch experience
+        const expResponse = await fetch('/api/getUserStats', {
+            method: 'POST',
+            body: JSON.stringify({ publicKey: publicKey.toBase58() }),
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const { exp, points, doints, qoints } = await expResponse.json();
+
+        // Fetch burns
+        const burnsResponse = await fetch('/api/getUserBurns', {
+            method: 'POST',
+            body: JSON.stringify({ publicKey: publicKey.toBase58() }),
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const { totalBurn } = await burnsResponse.json();
+
+        // Fetch balance
+        const balanceResponse = await fetch('/api/getMS2Balance', {
+            method: 'POST',
+            body: JSON.stringify({ publicKey: publicKey.toBase58() }),
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const { balance } = await balanceResponse.json();
+        const groupsResponse = await fetch(`/api/getGroups`, {
+            method: 'POST',
+            body: JSON.stringify({ publicKey: publicKey.toBase58() }),
+            headers: { 'Content-Type': 'application/json' },
+        });
+        const groupsData = await groupsResponse.json()
+
+        // Set the fetched user data into the state
+        const fetchedUserInfo = {
+            exp,
+            burns: totalBurn,
+            balance,
+            points,
+            doints,
+            qoints,
+            group: groupsData
+        };
+        const solPriceResponse = await fetch('https://api-v3.raydium.io/mint/price?mints=So11111111111111111111111111111111111111112')
+        setUserInfo(fetchedUserInfo);
+        const solData = await solPriceResponse.json()
+        setSolPrice(parseFloat(solData.data['So11111111111111111111111111111111111111112']))
+        // Calculate the discounts
+        const calculatedDiscounts = calculateDiscounts(fetchedUserInfo);
+        setDiscounts(calculatedDiscounts);
+        
+        setLoading(false);
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        setLoading(false);
+    }
+}, [publicKey]);
+
+// Trigger data fetch when wallet connects
+useEffect(() => {
+    if (publicKey) {
+        fetchUserData();
+    }
+}, [publicKey, fetchUserData]);
+
+    const handleCryptoAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const amount = parseFloat(event.target.value);
+        setCryptoAmount(amount);
+        setPointsAmount(amount * POINTS_PER_CRYPTO);
+    };
+    //userInfo ? setDiscounts(calculateDiscounts(userInfo)) : null
+    console.log('userInfo',userInfo)
+                  console.log('discounts',discounts)
+
+    return (
+        <div className="w-100 bg-black text-white p-6 rounded-md sm:w-4/5 md:w-4/5">
+            {/* <h1 className="text-2xl font-bold text-center">Charge your MS2 Account</h1> */}
+            {children}
+            <br></br>
+            {loading ? (
+                  <div className="flex justify-center items-center h-full">
+                      <div className="spinner-border animate-spin text-white inline-block w-8 h-8 border-4 rounded-full" role="status">
+                          <span className="visually-hidden">Loading...</span>
+                      </div>
+                  </div>
+              ) : (
+                  <div className="flex flex-col text-white justify-center h-full text-left">
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <p><strong>MS2 Balance: </strong>{userInfo.balance}🎮</p>
+                        <p style={{ color: 'green', textAlign: 'right' }}>
+                            {discounts && discounts.ms2BalanceDiscount ? `-${discounts.ms2BalanceDiscount}% ` : ''}
+                        </p>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <p><strong>MS2 Burned: </strong>{userInfo.burns || 0}🔥</p>
+                        <p style={{ color: 'green', textAlign: 'right' }}>
+                            {discounts && discounts.ms2BurnDiscount ? `-${discounts.ms2BurnDiscount}%` : ''}
+                        </p>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <p><strong>Level: </strong>{Math.floor(Math.cbrt(userInfo.exp))}</p>
+                        <p style={{ color: 'green', textAlign: 'right' }}>
+                            {discounts && discounts.levelDiscount ? `-${discounts.levelDiscount}%` : ''}
+                        </p>
+                    </div>
+                    {/* Level Progress Bar */}
+                      <p><strong>EXP: </strong>{(() => {
+                              const totalExp = userInfo.exp + userInfo.points;
+                              const level = Math.floor(Math.cbrt(totalExp));
+                              const nextLevel = (level + 1) ** 3;
+                              const lastLevel = level ** 3;
+                              const toLevelUpRatio = (totalExp - lastLevel) / (nextLevel - lastLevel);
+
+                              let bars = '🟩';
+                              for (let i = 0; i < 6; i++) {
+                                  bars += i < toLevelUpRatio * 6 ? '🟩' : '⬜️';
+                              }
+
+                              return bars;
+                          })()}</p>
+
+
+                      {/* Points Progress Bar */}
+                      <p><strong>Points: </strong>{createBalancedBar(
+                            Math.floor((userInfo.balance + NOCOINERSTARTER) / POINTMULTI),
+                            userInfo.points + userInfo.doints,
+                            userInfo.qoints,
+                            7
+                            )}</p>
+                      
+                      <p><strong>One-Use Points:</strong> {userInfo.qoints}</p>
+                      <p><strong>MS2 Holdings:</strong> {userInfo.balance}</p>
+                  </div>
+              )}
+              <br></br>
+              { discounts && discounts.ms2BalanceDiscount + discounts.ms2BurnDiscount + discounts.levelDiscount > 0 ? <><p style={{ color: 'green', textAlign: 'center' }}><strong>-{discounts.ms2BalanceDiscount + discounts.ms2BurnDiscount + discounts.levelDiscount}% DISCOUNT</strong></p></> : null }
+              <br></br>
+              <h3 className={''}>Your rate: ${calculatePointCost(discounts)} / point </h3>
+              <h3 className={''}> { parseFloat(calculatePointCost(discounts)) / solPrice} SOL / point</h3>
+            <div className="mt-4">
+                <label className="block mb-2 text-sm">Sell (Enter SOL amount):</label>
+                <input
+                    type="number"
+                    value={cryptoAmount}
+                    onChange={handleCryptoAmountChange}
+                    className="w-full p-2 text-black"
+                />
+            </div>
+            <div className="mt-4">
+                <label className="block mb-2 text-sm">Buy (Points you get):</label>
+                <input
+                    type="number"
+                    value={pointsAmount}
+                    disabled
+                    className="w-full p-2 text-black bg-gray-200"
+                />
+            </div>
+            <button className="mt-6 w-full bg-purple-600 py-2 text-white rounded hover:bg-purple-700 transition duration-300">
+                Swap
+            </button>
+            <p className="mt-4 text-xs">stationthisbot stationthisbot stationthisbot</p>
+        </div>
+    );
 };
+
+
+
 
 const fetchTokenAccount = async (publicKey: string) => {
     try {
@@ -265,7 +506,7 @@ const fetchTokenAccount = async (publicKey: string) => {
     }
 };
 
-const PayDev = ({ setSuccess, setMessage, selectedService, formData, setProgress, setFormData }: { setSuccess: (value:boolean)=> void, setMessage: (value:string)=> void, selectedService: any, formData: any, setProgress: any, setFormData:any }) => {
+const PayDev = ({ setSuccess, setMessage, selectedService, setProgress }: { setSuccess: (value:boolean)=> void, setMessage: (value:string)=> void, selectedService: any, setProgress: any}) => {
 
     const { publicKey, signTransaction } = useWallet();
     const [isPaying, setIsPaying] = useState<boolean>(false);
@@ -284,7 +525,7 @@ const PayDev = ({ setSuccess, setMessage, selectedService, formData, setProgress
                             setIsPaying(true);
                             setSuccess(false);
                             setMessage("");
-                            /*
+                            
                             // Fetch the user's token account address for the known token
                             const tokenAccountInfo = await fetchTokenAccount(`${publicKey}`);
                             console.log('here is the token account',tokenAccountInfo)
@@ -296,7 +537,7 @@ const PayDev = ({ setSuccess, setMessage, selectedService, formData, setProgress
                             setMessage("No tokens found to burn.");
                             return;
                             }
-                            */
+                            
 
                             /*
                             let amount;
@@ -448,9 +689,6 @@ const PayDev = ({ setSuccess, setMessage, selectedService, formData, setProgress
     );
 };
 
-// const PayDev = ({ setSuccess, setMessage, selectedService, formData, setProgress, setFormData }: {{ setSuccess: (value:boolean)=> void, setMessage: (value:string)=> void, selectedService: any, formData: any, setProgress: any, setFormData:any }) => {
-// }
-
 function Status({ progress }: { progress: number }) {
     const [isVisible, setIsVisible] = useState(false);
 
@@ -468,11 +706,6 @@ function Status({ progress }: { progress: number }) {
   
     return (
       <div className="relative">
-        <div className="inline-flex items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900">
-          <span>Solutions</span>
-          <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
-        </div>
-  
         {isVisible && (
           <Transition
             show={isVisible}
@@ -528,5 +761,79 @@ function Progress({ progress }: { progress: number }) {
       </div>
     )
   }
+
+  const PaySolView: React.FC = ({}) => {
+    const [selectedService, setSelectedService] = useState(options[0]);
+    const [amount, setAmount] = useState(selectedService.amount);
+    const [progress, setProgress] = useState<number>(0);
+    const [message, setMessage] = useState<string>("");
+    const [success, setSuccess] = useState<boolean>(false);
+
+    
+
+    const closeTxError = () => {
+        setMessage('');
+    };
+
+    const Wallet: FC = () => {
+        // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
+        const network = WalletAdapterNetwork.Mainnet;
+
+        // You can also provide a custom RPC endpoint.
+        const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+
+        const wallets = useMemo(
+            () => [
+                new PhantomWalletAdapter(),
+                new SolflareWalletAdapter(),
+            ],
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+            [network]
+        );
+
+        return (
+            <ConnectionProvider endpoint={endpoint}>
+                <WalletProvider wallets={wallets} autoConnect>
+                    <WalletModalProvider>
+                    
+                    <div className="items-center justify-center min-h-screen">
+                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center space-y-2 w-3/4">
+                        {/* <div className="flex flex-col items-center transform translate-x-1/2"> */}
+                            <br></br>
+                            <br></br>
+                            <br></br>
+                            
+                            <MobileWarning />
+                            <Status progress={progress}/>
+                            <WalletMultiButton />
+                            
+                            <TxAlert message={message} onClose={closeTxError} success={success}/>
+                            
+                            {/* <Form selectedService={selectedService} amount={amount} setAmount={setAmount} formData={formData} setFormData={setFormData} /> */}
+                            <SwapForm>
+                              <Dropdown selectedService={selectedService} setSelectedService={setSelectedService} />
+                            </SwapForm>
+                            <PayDev setSuccess={setSuccess} setMessage={setMessage} selectedService={selectedService} setProgress={setProgress}/>
+                        </div>
+                    </div>
+                    </WalletModalProvider>
+                </WalletProvider>
+            </ConnectionProvider>
+        );
+    };
+
+  
+
+  return (
+    <>
+    <Header />
+    <div className="h-screen w-80">
+    <Wallet />
+    
+    </div>
+    <Socials />
+    </>
+  );
+};
 
 export default PaySolView
