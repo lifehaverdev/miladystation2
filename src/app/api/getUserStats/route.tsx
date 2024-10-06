@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { MongoClient } from 'mongodb';
 
 // Fetch user data from MongoDB
-const fetchUserExpByPublicKey = async (publicKey: string): Promise<any> => {
+export const fetchUserExpByPublicKey = async (publicKey: string): Promise<any> => {
     const uri = process.env.MONGO_URI || 'meh'; // MongoDB connection URI from environment variables
     const dbName = 'stationthisbot';  // Replace with your actual database name
 

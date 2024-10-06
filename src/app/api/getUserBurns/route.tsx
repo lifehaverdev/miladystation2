@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { MongoClient } from 'mongodb';
 
 // Fetch burn data from MongoDB
-const fetchBurnsByPublicKey = async (publicKey: string): Promise<number> => {
+export const fetchBurnsByPublicKey = async (publicKey: string): Promise<number> => {
     const uri = process.env.MONGO_URI || 'meh'; // MongoDB connection URI from environment variables
     const dbName = 'stationthisbot';  // Replace with your actual database name
 

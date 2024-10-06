@@ -8,7 +8,7 @@ const fetchURL = `https://solana-mainnet.g.alchemy.com/v2/${apiKey}`;
 const tokenMintAddr = "AbktLHcNzEoZc9qfVgNaQhJbqDTEmLwsARY7JcTndsPg";
 
 // Function to fetch MS2 balance for a given wallet address
-const fetchBalanceByPublicKey = async (publicKey: string): Promise<number> => {
+export const fetchBalanceByPublicKey = async (publicKey: string): Promise<number> => {
   //console.log(`[fetchBalanceByPublicKey] Fetching balance for publicKey: ${publicKey}`);
 
   const raw = JSON.stringify({

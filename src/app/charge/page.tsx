@@ -99,88 +99,6 @@ function classNames(...classes:string[]) {
     )
   }
 
-
- function Form({ selectedService, amount, setAmount }: { selectedService: any, amount: number, setAmount: (value: number) => void, formData: any, setFormData: (value: any) => void }) {
-    // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     console.log('it changed')
-    //     setTimeout(()=>{},5000);
-    //     setAmount(parseInt(e.target.value, 10));
-    // };
-    return (
-      <form>
-        <div className="">
-          <div>
-            <div className="mt-10 space-y-8 border-b border-gray-900/10 pb-12 sm:space-y-0 sm:divide-y sm:divide-gray-900/10 sm:border-t sm:pb-0">
-              <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-                <label className="block text-sm font-medium leading-6 text-blue-900 sm:pt-1.5">
-                  Project Name
-                </label>
-                <div className="mt-2 sm:col-span-2 sm:mt-0">
-                  <input
-                    type="text"
-                    name="project"
-                    id="project"
-                    className="block w-full rounded-md border-0 py-1.5 text-blue-900 shadow-sm ring-1 ring-inset ring-blue-300 placeholder:text-blue-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                    
-                  />
-                </div>
-              </div>
-              <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-                <label className="block text-sm font-medium leading-6 text-blue-900 sm:pt-1.5">
-                  Twitter Handle
-                </label>
-                <div className="mt-2 sm:col-span-2 sm:mt-0">
-                  <input
-                    type="text"
-                    name="twitter"
-                    id="twitter"
-                    className="block w-full rounded-md border-0 py-1.5 text-blue-900 shadow-sm ring-1 ring-inset ring-blue-300 placeholder:text-blue-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                    
-                  />
-                </div>
-              </div>
-              <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-                <label className="block text-sm font-medium leading-6 text-blue-900 sm:pt-1.5">
-                  Telegram Handle
-                </label>
-                <div className="mt-2 sm:col-span-2 sm:mt-0">
-                  <input
-                    id="telegram"
-                    name="telegram"
-                    type="text"
-                    className="block w-full rounded-md border-0 py-1.5 text-blue-900 shadow-sm ring-1 ring-inset ring-blue-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-md sm:text-sm sm:leading-6"
-                    
-                  />
-                </div>
-              </div>
-              {selectedService.type === 'exact' && (
-                    <div className="mt-4 flex mx-auto justify-center text-lg font-bold text-lg text-white cursor-pointer transition-colors duration-300">
-                        $MS2 {selectedService.amount}
-                    </div>
-                )}
-
-                {selectedService.type === 'minimum' && (
-                    <div className="mt-4 flex mx-auto justify-center">
-                        <label className="block text-lg text-white cursor-pointer transition-colors duration-300">
-                            Amount Sol
-                        </label>
-                        <input
-                            id='solInput'
-                            type="text"
-                            placeholder={JSON.stringify(amount)}
-                            // onChange={handleChange}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm sm:text-black"
-                            // min={selectedService.amount}
-                        />
-                    </div>
-                )}
-            </div>
-          </div>
-        </div>
-      </form>
-    )
-  }
-
   interface SwapFormProps {
     children: React.ReactNode; // Accepting children elements
 }
@@ -190,17 +108,19 @@ function classNames(...classes:string[]) {
 const SwapForm: React.FC<SwapFormProps> = ({ children }) => {
     const [cryptoAmount, setCryptoAmount] = useState(0);
     const [pointsAmount, setPointsAmount] = useState(0);
-    const POINTS_PER_CRYPTO = 1000; // Example conversion rate
-
+    const [pointsPerSol, setPointsPerSol] = useState<number>(0); 
     const [loading, setLoading] = useState(true); // Loading state
     const [userInfo, setUserInfo] = useState<any>(null); // User info state
-    const [discounts, setDiscounts] = useState<any>(null);
+    const [discounts, setDiscounts] = useState({
+      ms2BalanceDiscount: 0,
+      ms2BurnDiscount: 0,
+      levelDiscount: 0,
+  });  // Store calculated discounts;
     const [solPrice, setSolPrice] = useState<number>(160);
-    const [pointPriceUSD, setPointPriceUSD] = useState<number>(0.001284)
     const { publicKey } = useWallet()
 
     const calculateDiscounts = (userInfo: any) => {
-      console.log('we calculate discount')
+      //console.log('we calculate discount')
       const { balance, burns, exp } = userInfo;
   
       // Discount based on MS2 balance (25% discount if balance >= 600,000)
@@ -212,7 +132,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ children }) => {
       // Discount based on user level (25% discount if level >= 100)
       const userLevel = Math.floor(Math.cbrt(exp));
       const levelDiscount = userLevel >= 100 ? 25 : (userLevel / 100) * 25;
-      console.log('calculated discounts',ms2BalanceDiscount,ms2BurnDiscount,levelDiscount)
+      //console.log('calculated discounts',ms2BalanceDiscount,ms2BurnDiscount,levelDiscount)
       // Return the calculated discounts
       return {
           ms2BalanceDiscount: Math.min(ms2BalanceDiscount, 25),  // Ensure max 25%
@@ -225,6 +145,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ children }) => {
     
     const baseCostPerPoint = 0.001284; // Base cost for the user with no discounts
     if(!discounts){
+      console.log('NO DISCOUNTS FOUND')
       return baseCostPerPoint
     }
     // Calculate the total discount by summing the three discount types
@@ -232,90 +153,27 @@ const SwapForm: React.FC<SwapFormProps> = ({ children }) => {
     
     // Cap the total discount at 75% (if total discount exceeds 75)
     const effectiveDiscount = Math.min(totalDiscount, 75);
-    
+    console.log('effectiveDiscount',effectiveDiscount)
     // Calculate the final cost per point by applying the discount to the base cost
     const discountedCostPerPoint = baseCostPerPoint * (1 - effectiveDiscount / 100);
-    
+    console.log('discountedCostPerPoint',discountedCostPerPoint)
     // Return the final cost per point
-    return discountedCostPerPoint.toFixed(6);  // Format to 6 decimal places
+    return discountedCostPerPoint;  // Format to 6 decimal places
 };
 
+// Function to calculate point cost and points per SOL
+const calculatePointsPerSol = useCallback(() => {
+  if (discounts && solPrice) {
+    console.log('discounts',discounts)
+      const pointCostInUSD = calculatePointCost(discounts);
+      console.log('pointcostusd',pointCostInUSD)
+      const pointsPerSolCalc = solPrice / pointCostInUSD; // SOL to point conversion
+      console.log('points per sol in calculate points per sol' , pointsPerSolCalc)
+      setPointsPerSol(pointsPerSolCalc);
+  }
+}, [discounts, solPrice]);
+
   
-    // Simulate loading user data
-    // useEffect(() => {
-    //     // Simulate fetching from the database (1 second delay)
-    //     setTimeout(() => {
-    //         // Mocked user info for now
-    //         const mockUserInfo = {
-    //             level: 5,
-    //             pointsPerPeriod: 5000,
-    //             qoints: 4000,
-    //             ms2Holdings: 300
-    //         };
-    //         setUserInfo(mockUserInfo);
-    //         setLoading(false);
-    //     }, 1000);
-    // }, []);
-  //   useEffect(() => {
-  //     const fetchUserData = async () => {
-  //         if (publicKey) {
-  //             try {
-  //               console.log('we gettin data')
-  //                 // Fetch experience data
-  //                 const expResponse = await fetch(`/api/getUserStats`, {
-  //                     method: 'POST',
-  //                     body: JSON.stringify({ publicKey: publicKey.toBase58() }),
-  //                     headers: { 'Content-Type': 'application/json' },
-  //                 });
-  //                 const expData = await expResponse.json();
-
-  //                 // Fetch burns data
-  //                 const burnsResponse = await fetch(`/api/getUserBurns`, {
-  //                     method: 'POST',
-  //                     body: JSON.stringify({ publicKey: publicKey.toBase58() }),
-  //                     headers: { 'Content-Type': 'application/json' },
-  //                 });
-  //                 const burnsData = await burnsResponse.json();
-
-  //                 // Fetch balance data
-  //                 const balanceResponse = await fetch(`/api/getMS2Balance`, {
-  //                     method: 'POST',
-  //                     body: JSON.stringify({ publicKey: publicKey.toBase58() }),
-  //                     headers: { 'Content-Type': 'application/json' },
-  //                 });
-  //                 const balanceData = await balanceResponse.json();
-
-  //                 const groupsResponse = await fetch(`/api/getGroups`, {
-  //                   method: 'POST',
-  //                   body: JSON.stringify({ publicKey: publicKey.toBase58() }),
-  //                   headers: { 'Content-Type': 'application/json' },
-  //               });
-  //               const groupsData = await groupsResponse.json()
-  //                 //console.log('we got',expData,burnsData,balanceData,groupsData)
-  //                 // Combine all data
-  //                 setUserInfo({
-  //                     exp: expData.exp,
-  //                     points: expData.points,
-  //                     qoints: expData.qoints,
-  //                     doints: expData.doints,
-  //                     burns: burnsData.totalBurn,
-  //                     balance: balanceData.balance,
-  //                     group: groupsData.groupChatDetails ? groupsData.groupChatDetails : false
-  //                 });
-                  
-                  
-  //                 setLoading(false);
-  //             } catch (error) {
-  //                 console.error("Error fetching user data:", error);
-  //                 setLoading(false);
-  //             }
-  //         }
-  //     };
-
-  //     fetchUserData();
-  // // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [publicKey]);
-  // Function to fetch all necessary data
   const fetchUserData = useCallback(async () => {
     if (!publicKey) return;
 
@@ -362,19 +220,25 @@ const SwapForm: React.FC<SwapFormProps> = ({ children }) => {
             qoints,
             group: groupsData
         };
+        console.log('fetchedUserInfo',fetchedUserInfo)
         const solPriceResponse = await fetch('https://api-v3.raydium.io/mint/price?mints=So11111111111111111111111111111111111111112')
         setUserInfo(fetchedUserInfo);
         const solData = await solPriceResponse.json()
+        console.log('solPrice',solData.data['So11111111111111111111111111111111111111112'])
         setSolPrice(parseFloat(solData.data['So11111111111111111111111111111111111111112']))
         // Calculate the discounts
         const calculatedDiscounts = calculateDiscounts(fetchedUserInfo);
+        console.log('calculatedDiscounts',calculatedDiscounts)
         setDiscounts(calculatedDiscounts);
         
+        // Calculate the discounts and points per SOL
+        calculatePointsPerSol();
         setLoading(false);
     } catch (error) {
         console.error('Error fetching user data:', error);
         setLoading(false);
     }
+// eslint-disable-next-line react-hooks/exhaustive-deps
 }, [publicKey]);
 
 // Trigger data fetch when wallet connects
@@ -384,18 +248,33 @@ useEffect(() => {
     }
 }, [publicKey, fetchUserData]);
 
-    const handleCryptoAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const amount = parseFloat(event.target.value);
-        setCryptoAmount(amount);
-        setPointsAmount(amount * POINTS_PER_CRYPTO);
-    };
-    //userInfo ? setDiscounts(calculateDiscounts(userInfo)) : null
-    console.log('userInfo',userInfo)
-                  console.log('discounts',discounts)
+useEffect(() => {
+  if (userInfo && solPrice) {
+      // Recalculate pointsPerSol based on the fetched user data and discounts
+      const pointCostInUSD = calculatePointCost(discounts); // Use correct discount value
+      const newPointsPerSol = solPrice / pointCostInUSD;
+      setPointsPerSol(newPointsPerSol); // Update pointsPerSol based on user data and solPrice
+  }
+}, [userInfo, solPrice, discounts]);
+
+useEffect(() => {
+  if (cryptoAmount && pointsPerSol) {
+      setPointsAmount(cryptoAmount * pointsPerSol); // Update points after pointsPerSol is updated
+  }
+}, [cryptoAmount, pointsPerSol]); // Trigger recalculation only when these values change
+
+
+const handleCryptoAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const amount = parseFloat(event.target.value);
+  setCryptoAmount(amount); // Simply update cryptoAmount, points will be calculated via useEffect
+};
+
+
 
     return (
-        <div className="w-100 bg-black text-white p-6 rounded-md sm:w-4/5 md:w-4/5">
-            {/* <h1 className="text-2xl font-bold text-center">Charge your MS2 Account</h1> */}
+        <>
+            <h1 className="text-2xl font-bold text-center">⚡️⚡️ Charge your ⭐️STB🕶️ Account ⚡️⚡️</h1>
+            <h2 className="text-2xl font-bold text-center">with 1-time-use points</h2>
             {children}
             <br></br>
             {loading ? (
@@ -451,18 +330,18 @@ useEffect(() => {
                             7
                             )}</p>
                       
-                      <p><strong>One-Use Points:</strong> {userInfo.qoints}</p>
-                      <p><strong>MS2 Holdings:</strong> {userInfo.balance}</p>
+                      <p>{userInfo.points + userInfo.doints}/{Math.floor((userInfo.balance + userInfo.burns*2 + NOCOINERSTARTER) / POINTMULTI)}{ userInfo.qoints + pointsAmount > 0 ? ` + ${userInfo.qoints + pointsAmount}` : ''}</p>
                   </div>
               )}
               <br></br>
               { discounts && discounts.ms2BalanceDiscount + discounts.ms2BurnDiscount + discounts.levelDiscount > 0 ? <><p style={{ color: 'green', textAlign: 'center' }}><strong>-{discounts.ms2BalanceDiscount + discounts.ms2BurnDiscount + discounts.levelDiscount}% DISCOUNT</strong></p></> : null }
               <br></br>
-              <h3 className={''}>Your rate: ${calculatePointCost(discounts)} / point </h3>
-              <h3 className={''}> { parseFloat(calculatePointCost(discounts)) / solPrice} SOL / point</h3>
+              {/* <h3 className={''}>Your rate: ${calculatePointCost(discounts)} / point </h3> */}
+              <h3 className={''}>Your rate: {pointsPerSol} point / SOL</h3>
             <div className="mt-4">
                 <label className="block mb-2 text-sm">Sell (Enter SOL amount):</label>
                 <input
+                    id='solInputAmount'
                     type="number"
                     value={cryptoAmount}
                     onChange={handleCryptoAmountChange}
@@ -478,11 +357,13 @@ useEffect(() => {
                     className="w-full p-2 text-black bg-gray-200"
                 />
             </div>
-            <button className="mt-6 w-full bg-purple-600 py-2 text-white rounded hover:bg-purple-700 transition duration-300">
+            {/* <button className="mt-6 w-full bg-purple-600 py-2 text-white rounded hover:bg-purple-700 transition duration-300"
+            //onClick={PayDev({})}
+            >
                 Swap
-            </button>
+            </button> */}
             <p className="mt-4 text-xs">stationthisbot stationthisbot stationthisbot</p>
-        </div>
+        </>
     );
 };
 
@@ -506,7 +387,7 @@ const fetchTokenAccount = async (publicKey: string) => {
     }
 };
 
-const PayDev = ({ setSuccess, setMessage, selectedService, setProgress }: { setSuccess: (value:boolean)=> void, setMessage: (value:string)=> void, selectedService: any, setProgress: any}) => {
+const PayDev = ({ setSuccess, setMessage, setProgress }: { setSuccess: (value:boolean)=> void, setMessage: (value:string)=> void, setProgress: any}) => {
 
     const { publicKey, signTransaction } = useWallet();
     const [isPaying, setIsPaying] = useState<boolean>(false);
@@ -515,17 +396,16 @@ const PayDev = ({ setSuccess, setMessage, selectedService, setProgress }: { setS
         <>
         <div>
             <button
-                className="rounded-full my-5 bg-mony px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-mony focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mony"
+                className="mt-6 w-full bg-purple-600 py-2 text-white rounded hover:bg-purple-700 transition duration-300 "
                 onClick={useCallback( async ()=>{
                     try {
-                        const project = document.getElementById('project') as HTMLInputElement;
-                        const twitter = document.getElementById('twitter') as HTMLInputElement;
-                        const telegram = document.getElementById('telegram') as HTMLInputElement;
+                        
                         if (publicKey) {
                             setIsPaying(true);
                             setSuccess(false);
                             setMessage("");
                             
+                            /*
                             // Fetch the user's token account address for the known token
                             const tokenAccountInfo = await fetchTokenAccount(`${publicKey}`);
                             console.log('here is the token account',tokenAccountInfo)
@@ -537,7 +417,7 @@ const PayDev = ({ setSuccess, setMessage, selectedService, setProgress }: { setS
                             setMessage("No tokens found to burn.");
                             return;
                             }
-                            
+                            */
 
                             /*
                             let amount;
@@ -549,7 +429,7 @@ const PayDev = ({ setSuccess, setMessage, selectedService, setProgress }: { setS
                             }
                             */
 
-                            const solInput = document.getElementById('solInput') as HTMLInputElement;
+                            const solInput = document.getElementById('solInputAmount') as HTMLInputElement;
                             const amount = parseFloat(solInput?.value);
                             
                             /*
@@ -648,10 +528,8 @@ const PayDev = ({ setSuccess, setMessage, selectedService, setProgress }: { setS
                                     body: JSON.stringify({
                                         wallet: publicKey,//.toBase58(),
                                         amount: amount,
+                                        
                                         //service: selectedService.name,
-                                        projectName: project.value,
-                                        twitterHandle: twitter.value,
-                                        telegramHandle: telegram.value,
                                         hash: submitData.txSignature,
                                     }),
                                     headers: { 'Content-Type': 'application/json' },
@@ -764,12 +642,11 @@ function Progress({ progress }: { progress: number }) {
 
   const PaySolView: React.FC = ({}) => {
     const [selectedService, setSelectedService] = useState(options[0]);
-    const [amount, setAmount] = useState(selectedService.amount);
+    //const [amount, setAmount] = useState(selectedService.amount);
     const [progress, setProgress] = useState<number>(0);
     const [message, setMessage] = useState<string>("");
     const [success, setSuccess] = useState<boolean>(false);
 
-    
 
     const closeTxError = () => {
         setMessage('');
@@ -810,10 +687,12 @@ function Progress({ progress }: { progress: number }) {
                             <TxAlert message={message} onClose={closeTxError} success={success}/>
                             
                             {/* <Form selectedService={selectedService} amount={amount} setAmount={setAmount} formData={formData} setFormData={setFormData} /> */}
+                            <div className="w-100 bg-black text-white p-6 rounded-md sm:w-4/5 md:w-4/5">
                             <SwapForm>
-                              <Dropdown selectedService={selectedService} setSelectedService={setSelectedService} />
-                            </SwapForm>
-                            <PayDev setSuccess={setSuccess} setMessage={setMessage} selectedService={selectedService} setProgress={setProgress}/>
+                                  <Dropdown selectedService={selectedService} setSelectedService={setSelectedService} />
+                              </SwapForm>
+                            <PayDev setSuccess={setSuccess} setMessage={setMessage} setProgress={setProgress}/>
+                            </div>
                         </div>
                     </div>
                     </WalletModalProvider>
