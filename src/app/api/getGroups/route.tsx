@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { MongoClient } from 'mongodb';
 
 // Fetch group chat ownership data from MongoDB
@@ -23,7 +23,7 @@ const fetchGroupChatDetailsByPublicKey = async (publicKey: string): Promise<any>
         if (groupChat) {
             return {
                 name: groupChat.name || 'Unnamed Group',
-                zoints: groupChat.zoints || 0,
+                qoints: groupChat.qoints || 0,
                 points: groupChat.points || 0,
                 doints: groupChat.doints || 0,
             };

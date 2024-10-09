@@ -2,9 +2,9 @@
 import { connectToDatabase } from '@/lib/mongodb';
 import { NextApiResponse } from "next";
 import { NextRequest } from "next/server";
-import { fetchBalanceByPublicKey } from '../getMS2Balance/route'
-import { fetchBurnsByPublicKey } from '../getUserBurns/route'
-import { fetchUserExpByPublicKey } from '../getUserStats/route'
+import { fetchBalanceByPublicKey } from '@/utils/alchemy';
+import { fetchBurnsByPublicKey } from '@/utils/stbDb'
+import { fetchUserExpByPublicKey } from '@/utils/stbDb'
 
 export async function POST(req: NextRequest, res: NextApiResponse) {
   
@@ -59,12 +59,48 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
     try {
       const client = await connectToDatabase();
       const db = client.db('stationthisbot');
+      // Insert into the charges collection
+      const chargesCollection = db.collection('charges');
+      let chargeDoc = await chargesCollection.findOne({ wallet });
+      if (chargeDoc) {
+        console.log('found a charge doc so we will just push a charge object to the wallet entry')
+        // If the document exists, push the new burn data to the wallet array
+        await chargesCollection.updateOne(
+          { wallet },
+          {
+            $push: {
+              charges: {
+                amount,
+                qoints,
+                hash,
+                group: group || null
+              },
+            },
+          }
+        );
+      } else {
+        // If the document does not exist, create a new document
+        console.log('we dont have a charge doc for this wallet, so we are gonna push a new one')
+        await chargesCollection.insertOne({
+          wallet,
+          charges: [
+            {
+              amount,
+              qoints,
+              hash,
+              group: group || null
+            },
+          ],
+        });
+      }
       let collection;
       //if group flag true modify group object in floorplan
       //else modify user object 
       if(!group) {
+        console.log('choosing user collection')
         collection = db.collection('users');
       } else {
+        console.log('choosing group collection')
         collection = db.collection('floorplan')
       }
 
@@ -86,41 +122,6 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
               },
           },
         );
-
-        // Insert into the charges collection
-        const chargesCollection = db.collection('charges');
-        let chargeDoc = await collection.findOne({ wallet });
-        if (chargeDoc) {
-          console.log('found a charge doc so we will just push a charge object to the wallet entry')
-          // If the document exists, push the new burn data to the wallet array
-          await chargesCollection.updateOne(
-            { wallet },
-            {
-              $push: {
-                charges: {
-                  amount,
-                  qoints,
-                  hash,
-                  group: group || null
-                },
-              },
-            }
-          );
-        } else {
-          // If the document does not exist, create a new document
-          console.log('we dont have a charge doc for this wallet, so we are gonna push a new one')
-          await collection.insertOne({
-            wallet,
-            charges: [
-              {
-                amount,
-                qoints,
-                hash,
-                group: group || null
-              },
-            ],
-          });
-        }
 
         return new Response('Charge saved successfully', {
           status: 200,
