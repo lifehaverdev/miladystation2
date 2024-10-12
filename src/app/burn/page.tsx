@@ -307,7 +307,7 @@ const BurnMS2 = ({ setSuccess, setMessage, selectedService, formData, setProgres
                         const project = document.getElementById('project') as HTMLInputElement;
                         const twitter = document.getElementById('twitter') as HTMLInputElement;
                         const telegram = document.getElementById('telegram') as HTMLInputElement;
-                        console.log('testing',project.value,twitter.value,telegram.value)
+                        
                         if (publicKey) {
                             setIsBurning(true);
                             setSuccess(false);
@@ -344,17 +344,17 @@ const BurnMS2 = ({ setSuccess, setMessage, selectedService, formData, setProgres
                                   headers: { "Content-type": "application/json; charset=UTF-8" },
                                 }
                               );
-                            console.log(response);
+                            
                     
                               
                             const data = await response.json();
-                            console.log(data)
+                            //console.log(data)
                             if (!response.ok) {
-                                console.log(response);
+                              //  console.log(response);
                                 return
                             }
                             const tx = Transaction.from(Buffer.from(data.transactionBase64, "base64"));
-                            console.log('tx',tx);
+                            //console.log('tx',tx);
                             let signedTx;
                             if(signTransaction){
                                 signedTx = await signTransaction(tx);
@@ -363,65 +363,74 @@ const BurnMS2 = ({ setSuccess, setMessage, selectedService, formData, setProgres
                             if(signedTx){
                                 signedTxBase64 = signedTx.serialize().toString("base64");
                             }
-                            console.log('testing',project.value,twitter.value,telegram.value)
+                            
                             // Send signed transaction
                             const submitResponse = await fetch("/api/submitTx", {
                                 method: "POST",
                                 body: JSON.stringify({ signedTx: signedTxBase64 }),
                                 headers: { "Content-type": "application/json; charset=UTF-8" },
                             });
-                            console.log('testing',project.value,twitter.value,telegram.value)
+                            
                             await setFormData({
                                 projectName: project.value,
                                 twitterHandle: twitter.value,
                                 telegramHandle: telegram.value,
                             })
-                            console.log('testing form',formData)
+                            //console.log('testing form',formData)
                             setProgress(30);
-                            console.log('submitresponse',submitResponse)
+                            //console.log('submitresponse',submitResponse)
                             var submitData = await submitResponse.json();
                             if (!submitResponse.ok) {
                                 throw new Error(submitData.error);
                             }
-                            console.log('submitData',submitData)
-                            console.log('submitted sig',submitData.txSignature)
+                            //console.log('submitData',submitData)
+                            //console.log('submitted sig',submitData.txSignature)
                             setTimeout(()=>{
                                 console.log('we just waited')
                             },20000) //to give confirmation extra time to kick in
                             const confirmationResponse = await fetch("/api/confirmTx",
-                                {
-                                  method: "POST",
-                                  body: JSON.stringify({ txSignature: submitData.txSignature }),
-                                  headers: {
-                                    "Content-type": "application/json; charset=UTF-8",
-                                  },
-                                }
-                              );
-                            console.log('confrimed',confirmationResponse)
+                              {
+                                method: "POST",
+                                body: JSON.stringify({ txSignature: submitData.txSignature }),
+                                headers: {
+                                  "Content-type": "application/json; charset=UTF-8",
+                                },
+                              }
+                            );
+                            console.log('confirmed', confirmationResponse);
+                            
                             const confirmationData = await confirmationResponse.json();
-                            console.log(confirmationData)
-                              if (confirmationData.confirmed) {
-                                setProgress(60);
-                                setMessage(`Transaction successful: ${JSON.stringify(submitData)}`);
-                                setIsBurning(false);
-                                setSuccess(true);
-                                
-                                console.log('testing form',formData)
-                                // Save the burn data to the database
-                                await fetch('/api/saveBurn', {
-                                    method: 'POST',
-                                    body: JSON.stringify({
-                                        wallet: publicKey,//.toBase58(),
-                                        amount: amount,
-                                        service: selectedService.name,
-                                        projectName: project.value,
-                                        twitterHandle: twitter.value,
-                                        telegramHandle: telegram.value,
-                                        hash: submitData.txSignature,
-                                    }),
-                                    headers: { 'Content-Type': 'application/json' },
-                                });
-                                setProgress(100);
+                            //console.log(confirmationData);
+                            
+                            if (confirmationData.confirmed) {
+                              const { authHash, timestamp } = confirmationData; // Extract authHash and timestamp
+                            
+                              setProgress(60);
+                              setMessage(`Transaction successful: ${JSON.stringify(submitData)}`);
+                              setIsBurning(false);
+                              setSuccess(true);
+                            
+                              //console.log('testing form', formData);
+                              
+                              // Save the burn data to the database
+                              await fetch('/api/saveBurn', {
+                                method: 'POST',
+                                body: JSON.stringify({
+                                  wallet: publicKey, // .toBase58()
+                                  amount: amount,
+                                  service: selectedService.name,
+                                  projectName: project.value,
+                                  twitterHandle: twitter.value,
+                                  telegramHandle: telegram.value,
+                                  hash: submitData.txSignature,
+                                  timestamp: timestamp,
+                                  authHash: authHash
+                                }),
+                                headers: { 'Content-Type': 'application/json' },
+                              });
+                            
+                              setProgress(100);
+                                                        
                               } else {
                                 setMessage(`Transaction failed: ${submitData}`);
 

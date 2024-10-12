@@ -46,18 +46,36 @@ export const submitTransaction = async (signedTxBase64: string) => {
 // Function to confirm a transaction
 export const confirmTransaction = async (txSignature: string) => {
   try {
-    const response = await fetch("/api/confirmTx", {
-      method: "POST",
-      body: JSON.stringify({ txSignature }),
-      headers: { "Content-type": "application/json; charset=UTF-8" },
-    });
+    const confirmResponse = await fetch('/api/confirmTx', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ txSignature }),
+      });
+  
+      const confirmData = await confirmResponse.json();
+  
+      if (!confirmData.confirmed) {
+        console.error("Transaction not confirmed");
+        return;
+      }
+  
+      // Step 2: Use the returned authHash and timestamp to make the /api/saveCharge request
+      
+      return confirmData
+    // const response = await fetch("/api/confirmTx", {
+    //   method: "POST",
+    //   body: JSON.stringify({ txSignature }),
+    //   headers: { "Content-type": "application/json; charset=UTF-8" },
+    // });
 
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(`Failed to confirm transaction: ${data.error || response.statusText}`);
-    }
+    // const data = await response.json();
+    // if (!response.ok) {
+    //   throw new Error(`Failed to confirm transaction: ${data.error || response.statusText}`);
+    // }
 
-    return data.confirmed;
+    //return data.confirmed;
   } catch (error: any) {
     console.error(`[confirmTransaction] Error: ${error.message}`);
     throw error;

@@ -53,24 +53,35 @@ const PayDev: FC<PayDevProps> = ({ setSuccess, setMessage, setProgress, selected
       // Confirm transaction
       setTimeout(async () => {
         const confirmed = await confirmTransaction(submitData.txSignature);
-        if (confirmed) {
+        const { authHash, timestamp } = confirmed;
+        if (authHash && timestamp) {
           setProgress(60);
           setMessage(`Transaction successful: ${JSON.stringify(submitData)}`);
           setSuccess(true);
 
           // Save the transaction to the database
-          await fetch('/api/saveCharge', {
+          const saveChargeResponse = await fetch('/api/saveCharge', {
             method: 'POST',
             body: JSON.stringify({
                 wallet: publicKey.toBase58(),
                 amount,
+                authHash,
+                timestamp,
                 hash: submitData.txSignature,
                 group: selectedService.id === 2 ? true : null, // Attach group info if selected
               }),
             headers: { 'Content-Type': 'application/json' },
           });
+          const saveChargeData = await saveChargeResponse.json();
 
-          setProgress(100);
+            if (!saveChargeData.success) {
+                setProgress(1);
+                console.error("Failed to save charge:", saveChargeData.message);
+            } else {
+                setProgress(100);
+                console.log("Charge saved successfully");
+            }
+          
         } else {
           throw new Error("Transaction confirmation failed.");
         }
