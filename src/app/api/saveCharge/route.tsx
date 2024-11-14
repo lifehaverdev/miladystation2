@@ -132,15 +132,17 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
       // Find the wallet document or group document
       let walletDoc = await collection.findOne({ wallet });
 
-      // Update the user or group qoints and add how many qoints they purchased
+      // Update the user or group pendingQoints and add how many qoints they purchased
       if (walletDoc) {
         await collection.updateOne(
           { wallet },
           {
+            $setOnInsert: { pendingQoints: 0 },  // Initialize pendingQoints to 0 if it doesn't exist
             $inc: {
-              qoints: qoints
+              pendingQoints: qoints  // Increment pendingQoints by the purchased amount
             },
-          }
+          },
+          { upsert: true }  // This will create the document if it doesn’t exist
         );
 
         return new Response(JSON.stringify({ success: true, message: 'Charge saved successfully' }), {
@@ -149,7 +151,7 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
         });
 
       } else {
-        return new Response('No Chat Owner', {
+        return new Response('No wallet doc', {
           status: 500,
         });
       }
