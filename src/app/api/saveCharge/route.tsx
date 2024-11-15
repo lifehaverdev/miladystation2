@@ -186,7 +186,7 @@ function calculateDiscounts(userExp: any, userBurns: number, userBalance: number
 }
 
 const calculatePointCost = (discounts: { ms2BalanceDiscount: number, ms2BurnDiscount: number, levelDiscount: number }) => {
-  const baseCostPerPoint = 0.001284; // Base cost for the user with no discounts
+  const baseCostPerPoint = 0.01; // Base cost for the user with no discounts
   if (!discounts) {
     return baseCostPerPoint;
   }
