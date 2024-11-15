@@ -134,22 +134,30 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
 
       // Update the user or group pendingQoints and add how many qoints they purchased
       if (walletDoc) {
+        // Check if pendingQoints exists in the document
+        if (walletDoc.pendingQoints === undefined) {
+          // Initialize pendingQoints to 0 if it doesn't exist
+          await collection.updateOne(
+            { wallet },
+            {
+              $set: { pendingQoints: 0 }
+            }
+          );
+        }
+      
+        // Increment pendingQoints by the purchased amount
         await collection.updateOne(
           { wallet },
           {
-            $setOnInsert: { pendingQoints: 0 },  // Initialize pendingQoints to 0 if it doesn't exist
-            $inc: {
-              pendingQoints: qoints  // Increment pendingQoints by the purchased amount
-            },
-          },
-          { upsert: true }  // This will create the document if it doesn’t exist
+            $inc: { pendingQoints: qoints }
+          }
         );
-
+      
         return new Response(JSON.stringify({ success: true, message: 'Charge saved successfully' }), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },
         });
-
+      
       } else {
         return new Response('No wallet doc', {
           status: 500,
