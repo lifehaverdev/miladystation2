@@ -31,7 +31,7 @@ interface UserInfo {
   };
   
   export const calculatePointCost = (discounts: Discounts): number => {
-    const baseCostPerPoint = 0.001284; // Base cost for the user with no discounts
+    const baseCostPerPoint = 0.01; // Base cost for the user with no discounts
     if (!discounts) {
       console.log('NO DISCOUNTS FOUND');
       return baseCostPerPoint;
