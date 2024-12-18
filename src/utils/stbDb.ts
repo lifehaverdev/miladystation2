@@ -37,42 +37,62 @@ export const fetchBurnsByPublicKey = async (publicKey: string): Promise<number> 
     }
 };
 
-// Fetch user data from MongoDB
-export const fetchUserExpByPublicKey = async (publicKey: string): Promise<any> => {
-    const uri = process.env.MONGO_URI || 'meh'; // MongoDB connection URI from environment variables
-    const dbName = 'stationthisbot';  // Replace with your actual database name
-
+// Fetch user core data from MongoDB
+export const fetchUserCoreByPublicKey = async (publicKey: string): Promise<any> => {
+    const uri = process.env.MONGO_URI || 'meh';
+    const dbName = 'stationthisbot';
     const client = new MongoClient(uri);
     
     try {
-        // Connect to MongoDB
         await client.connect();
-
-        // Access the "users" collection in the database
         const db = client.db(dbName);
-        const usersCollection = db.collection('users');
+        const usersCoreCollection = db.collection('users_core');
 
-        // Query the collection for the user filtered by wallet (publicKey)
-        const user = await usersCollection.findOne({ 'wallet': publicKey });
-
-        // If user is found, return the exp, points, doints, and qoints values
-        if (user) {
+        const userCore = await usersCoreCollection.findOne({ 'wallet': publicKey });
+        
+        if (userCore) {
             return {
-                exp: user.exp || 0,
-                points: user.points || 0,
-                doints: user.doints || 0,
-                qoints: user.qoints || 0,
+                userId: userCore.userId,
+                wallet: userCore.wallet
             };
         }
-
-        // Return null if user is not found
         return null;
 
     } catch (error) {
-        console.error('Error fetching user experience:', error);
+        console.error('Error fetching user core data:', error);
         throw error;
     } finally {
-        // Close the MongoDB connection
+        await client.close();
+    }
+};
+
+// Fetch user economy data from MongoDB
+export const fetchUserEconomyByUserId = async (userId: string): Promise<any> => {
+    const uri = process.env.MONGO_URI || 'meh';
+    const dbName = 'stationthisbot';
+    const client = new MongoClient(uri);
+    
+    try {
+        await client.connect();
+        const db = client.db(dbName);
+        const usersEconomyCollection = db.collection('users_economy');
+
+        const userEconomy = await usersEconomyCollection.findOne({ 'userId': userId });
+        
+        if (userEconomy) {
+            return {
+                exp: userEconomy.exp || 0,
+                points: userEconomy.points || 0,
+                doints: userEconomy.doints || 0,
+                qoints: userEconomy.qoints || 0,
+            };
+        }
+        return null;
+
+    } catch (error) {
+        console.error('Error fetching user economy data:', error);
+        throw error;
+    } finally {
         await client.close();
     }
 };

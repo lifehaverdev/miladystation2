@@ -20,7 +20,7 @@ const SwapForm: FC<SwapFormProps> = ({ selectedService, setSelectedService }) =>
 
   const { publicKey } = useWallet();
   const { userInfo, loading, discounts, solPrice, fetchUserData } = useUserData(publicKey);
-
+console.log('userInfo after useUserData', userInfo);
   const calculatePointsPerSol = useCallback(() => {
     if (discounts && solPrice) {
       console.log('discounts', discounts);
@@ -55,20 +55,24 @@ const SwapForm: FC<SwapFormProps> = ({ selectedService, setSelectedService }) =>
     setCryptoAmount(amount); // Simply update cryptoAmount, points will be calculated via useEffect
   };
 
+  const canCharge = userInfo !== null;
+
   return (
     <>
       <h1 className="text-2xl font-bold text-center">⚡️⚡️ Charge your ⭐️STB🕶️ Account ⚡️⚡️</h1>
       <h2 className="text-2xl font-bold text-center">with 1-time-use points</h2>
-      {/* {children} */}
       <br />
-      {loading || !userInfo ? (
+      {loading ? (
         <div className="flex justify-center items-center h-full">
-          <div
-            className="spinner-border animate-spin text-white inline-block w-8 h-8 border-4 rounded-full"
-            role="status"
-          >
+          <div className="spinner-border animate-spin text-white inline-block w-8 h-8 border-4 rounded-full" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
+        </div>
+      ) : !canCharge ? (
+        <div className="text-center">
+          <p className="text-red-500 font-bold mb-2">Account Not Found</p>
+          <p className="text-white">You need to create an STB account before charging.</p>
+          <p className="text-white">Please visit our <a href="https://t.me/STATIONTHIS" target="_blank" rel="noopener noreferrer">TG</a> to get started!</p>
         </div>
       ) : (
         <>
@@ -172,7 +176,8 @@ const SwapForm: FC<SwapFormProps> = ({ selectedService, setSelectedService }) =>
           type="number"
           value={cryptoAmount}
           onChange={handleCryptoAmountChange}
-          className="w-full p-2 text-black"
+          className={`w-full p-2 text-black ${!canCharge ? 'bg-gray-200' : ''}`}
+          disabled={!canCharge}
         />
       </div>
       {/* Points Amount Input */}

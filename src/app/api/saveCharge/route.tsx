@@ -3,7 +3,8 @@ import { NextApiResponse } from "next";
 import { NextRequest } from "next/server";
 import { fetchBalanceByPublicKey } from '@/utils/alchemy';
 import { fetchBurnsByPublicKey } from '@/utils/stbDb';
-import { fetchUserExpByPublicKey } from '@/utils/stbDb';
+import { fetchUserCoreByPublicKey } from '@/utils/stbDb';
+import { fetchUserEconomyByUserId } from '@/utils/stbDb';
 import crypto from "crypto";
 
 export async function POST(req: NextRequest, res: NextApiResponse) {
@@ -64,8 +65,10 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
           const solPriceUsd = parseFloat(solData.data['So11111111111111111111111111111111111111112']);
           console.log('solpriceusd', solPriceUsd);
           // Read account exp, 
-          const userExp = await fetchUserExpByPublicKey(wallet); // Fetch user experience
-          console.log('userstats', userExp);
+          const userId = await fetchUserCoreByPublicKey(wallet); // Fetch user userId
+          console.log('userstats', userId);
+          const userExp = await fetchUserEconomyByUserId(userId.userId); // Fetch user experience
+          console.log('userExp', userExp);
           // Read account burn total
           const userBurns = await fetchBurnsByPublicKey(wallet); // Fetch user burn total
           console.log('userBurns', userBurns);
@@ -118,56 +121,52 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
         });
       }
 
-      let collection;
-      // if group flag true modify group object in floorplan
-      // else modify user object 
-      if (!group) {
-        console.log('choosing user collection');
-        collection = db.collection('users');
-      } else {
-        console.log('choosing group collection');
-        collection = db.collection('floorplan');
-      }
+      let collection = db.collection('global_status');
 
-      // Find the wallet document or group document
-      let walletDoc = await collection.findOne({ wallet });
+      // Create the charge purchase entry
+      const chargePurchaseEntry = {
+          id: Date.now().toString(),
+          walletAddress: wallet,
+          pendingQoints: qoints,
+          txHash: txSignature,
+          amount: amount,
+          timestamp: new Date(),
+          status: 'pending'
+      };
 
-      // Update the user or group pendingQoints and add how many qoints they purchased
-      if (walletDoc) {
-        // Check if pendingQoints exists in the document
-        if (walletDoc.pendingQoints === undefined) {
-          // Initialize pendingQoints to 0 if it doesn't exist
-          await collection.updateOne(
-            { wallet },
-            {
-              $set: { pendingQoints: 0 }
-            }
-          );
-        }
-      
-        // Increment pendingQoints by the purchased amount
-        await collection.updateOne(
-          { wallet },
+      // Add the entry to the chargePurchases array in global_status
+      const result = await collection.updateOne(
+          { type: 'globalStatus' },
           {
-            $inc: { pendingQoints: qoints }
-          }
-        );
-      
-        return new Response(JSON.stringify({ success: true, message: 'Charge saved successfully' }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        });
-      
+              $push: { 
+                  chargePurchases: chargePurchaseEntry 
+              },
+              $set: {
+                  updatedAt: new Date()
+              }
+          },
+          { upsert: true }
+      );
+
+      if (result.modifiedCount > 0 || result.upsertedCount > 0) {
+          return new Response(JSON.stringify({ 
+              success: true, 
+              message: 'Charge purchase recorded successfully',
+              purchaseId: chargePurchaseEntry.id
+          }), {
+              status: 200,
+              headers: { 'Content-Type': 'application/json' },
+          });
       } else {
-        return new Response('No wallet doc', {
-          status: 500,
-        });
+          return new Response('Failed to record charge purchase', {
+              status: 500,
+          });
       }
 
     } catch (error) {
-      console.error('Error saving charge data:', error);
-      return new Response('Error saving charge data', {
-        status: 500,
+      console.error('Error saving charge purchase:', error);
+      return new Response('Error saving charge purchase data', {
+          status: 500,
       });
     }
 }

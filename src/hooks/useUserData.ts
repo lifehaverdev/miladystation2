@@ -27,10 +27,24 @@ export const useUserData = (publicKey: any) => {
     try {
       setLoading(true);
 
-      // Fetch experience
-      const expResponse = await fetch('/api/getUserStats', {
+      // First check if user exists in users_core
+      const userCoreResponse = await fetch('/api/getUserCore', {
         method: 'POST',
         body: JSON.stringify({ publicKey: publicKey.toBase58() }),
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const userCore = await userCoreResponse.json();
+      
+      // If no user found in users_core, set userInfo to null and return early
+      if (!userCore || !userCore.wallet) {
+        setUserInfo(null);
+        return;
+      }
+
+      // Fetch experience from users_economy
+      const expResponse = await fetch('/api/getUserEconomy', {
+        method: 'POST',
+        body: JSON.stringify({ userId: userCore.userId }),
         headers: { 'Content-Type': 'application/json' },
       });
       const { exp, points, doints, qoints } = await expResponse.json();
@@ -85,6 +99,7 @@ export const useUserData = (publicKey: any) => {
       setDiscounts(calculatedDiscounts);
     } catch (error) {
       console.error('Error fetching user data:', error);
+      setUserInfo(null); // Set to null on error
     } finally {
       setLoading(false);
     }
