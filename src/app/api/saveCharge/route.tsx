@@ -46,6 +46,14 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
       const client = await connectToDatabase();
       const db = client.db('stationthisbot');
       
+      // Get the userId first
+      const userCore = await fetchUserCoreByPublicKey(wallet);
+      if (!userCore) {
+        return new Response('User not found', {
+          status: 404,
+        });
+      }
+
       // Check if txSignature has already been used
       const chargesCollection = db.collection('charges');
       const existingCharge = await chargesCollection.findOne({
@@ -123,9 +131,10 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
 
       let collection = db.collection('global_status');
 
-      // Create the charge purchase entry
+      // Create the charge purchase entry with userId
       const chargePurchaseEntry = {
           id: Date.now().toString(),
+          userId: userCore.userId,
           walletAddress: wallet,
           pendingQoints: qoints,
           txHash: txSignature,
