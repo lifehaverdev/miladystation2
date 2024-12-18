@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { fetchUserExpByPublicKey } from '@/utils/stbDb';
+import { fetchUserCoreByPublicKey, fetchUserEconomyByUserId } from '@/utils/stbDb';
 
 // POST request handler for Next.js API route
 export async function POST(req: NextRequest) {
@@ -14,19 +14,27 @@ export async function POST(req: NextRequest) {
             });
         }
 
-        // Fetch user experience and points data from the database
-        const userData = await fetchUserExpByPublicKey(publicKey);
-
-        // Return the fetched data as JSON, or an error if not found
-        if (userData) {
-            return new Response(JSON.stringify(userData), {
-                status: 200,
-            });
-        } else {
+        // Fetch user core data first
+        const userCore = await fetchUserCoreByPublicKey(publicKey);
+        
+        if (!userCore) {
             return new Response(JSON.stringify({ error: 'User not found' }), {
                 status: 404,
             });
         }
+
+        // Fetch user economy data using the userId from userCore
+        const userEconomy = await fetchUserEconomyByUserId(userCore.userId);
+
+        // Combine both data sets
+        const userData = {
+            ...userCore,
+            ...userEconomy
+        };
+
+        return new Response(JSON.stringify(userData), {
+            status: 200,
+        });
 
     } catch (error) {
         console.error('Error fetching user experience:', error);
