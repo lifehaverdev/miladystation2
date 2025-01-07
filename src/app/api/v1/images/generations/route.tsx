@@ -2,31 +2,37 @@ import { NextRequest } from 'next/server';
 
 const BOT_URL = process.env.BOT_URL;
 
-export async function POST(req: NextRequest) {
+// Remove 'use edge' directive
+export const config = {
+  maxDuration: 300, // 5 minutes for Pro accounts
+};
+
+export async function POST(req: Request) {
   try {
-    if (!BOT_URL) {
+    if (!process.env.BOT_URL) {
       throw new Error('BOT_URL environment variable is not set');
     }
 
     const body = await req.json();
     
-    // Forward the request to the bot
-    const botResponse = await fetch(`${BOT_URL}/v1/images/generations`, {
+    const botResponse = await fetch(`${process.env.BOT_URL}/v1/images/generations`, {
       method: 'POST',
       headers: {
         'Authorization': req.headers.get('Authorization') || '',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(body),
-      duplex: 'half'  // Add this line to fix the error
-    } as RequestInit & { duplex: 'half' });
+      body: JSON.stringify(body)
+    });
 
     const data = await botResponse.json();
     return new Response(JSON.stringify(data), {
       status: botResponse.status,
       headers: {
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      },
     });
 
   } catch (error: any) {
