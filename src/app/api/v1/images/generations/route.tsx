@@ -3,9 +3,9 @@ import { NextRequest } from 'next/server';
 const BOT_URL = process.env.BOT_URL;
 
 // Remove 'use edge' directive
-export const config = {
-  maxDuration: 300, // 5 minutes for Pro accounts
-};
+// Replace with this:
+export const runtime = 'nodejs';
+export const maxDuration = 300;
 
 export async function POST(req: Request) {
   try {
